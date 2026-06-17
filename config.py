@@ -1,0 +1,1 @@
+DATABASE_URL = "postgresql://postgres:9399@localhost:1432/career_navigator"
