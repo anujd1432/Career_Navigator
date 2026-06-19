@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Results — Career Navigator</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-brand"><span>🎯</span> Career Navigator</div>
+  <div class="nav-links">
+    <a href="/dashboard">🏠 Dashboard</a>
+    <a href="/internships-page">💼 Internships</a>
+    <a href="/careers-page">🚀 Careers</a>
+    <a href="/scholarships-page">🎓 Scholarships</a>
+  </div>
+  <div class="nav-user">
+    <div class="avatar" id="avatarText">S</div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<div class="dashboard">
+
+  <!-- Hero Result Banner -->
+  <div class="result-banner">
+    <div>
+      <div style="font-size:13px;opacity:.8;margin-bottom:8px">🤖 AI Analysis Complete!</div>
+      <h1 id="resultTitle">Aapke liye Top Career Recommendations</h1>
+      <p id="resultSub">Aapki interests, skills aur personality ke basis pe</p>
+    </div>
+    <div class="readiness-box">
+      <div id="readinessScore" style="font-size:42px;font-weight:700">—</div>
+      <div style="font-size:13px;opacity:.8">Career Readiness</div>
+    </div>
+  </div>
+
+  <!-- Personality Type -->
+  <div style="display:grid;grid-template-columns:1fr 3fr;gap:20px;margin-bottom:24px">
+    <div class="card" style="text-align:center">
+      <div style="font-size:48px;margin-bottom:8px" id="personalityIcon">🧠</div>
+      <div style="font-size:20px;font-weight:700;color:#667eea;margin-bottom:4px" id="personalityType">—</div>
+      <div style="font-size:13px;color:#718096" id="personalityDesc">—</div>
+    </div>
+    <div class="card">
+      <div style="font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:12px">📊 Aapka Profile Summary</div>
+      <div id="profileSummary" style="font-size:14px;color:#4a5568;line-height:1.8"></div>
+    </div>
+  </div>
+
+  <!-- Top 3 Career Recommendations -->
+  <div style="font-size:20px;font-weight:700;color:#1a1a2e;margin-bottom:16px">🚀 Top 3 Career Recommendations</div>
+  <div id="careerCards" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:28px">
+    <div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading...</div>
+  </div>
+
+  <!-- Skill Gap -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px">
+    <div class="card">
+      <div style="font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:16px">✅ Aapke Paas Ye Skills Hain</div>
+      <div id="existingSkills"></div>
+    </div>
+    <div class="card">
+      <div style="font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:16px">📚 Ye Skills Seekhni Hain</div>
+      <div id="missingSkills"></div>
+    </div>
+  </div>
+
+  <!-- AI Advice -->
+  <div class="card" style="margin-bottom:24px">
+    <div style="font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:12px">🤖 AI Career Advisor ki Raay</div>
+    <div id="aiAdvice" style="font-size:14px;color:#4a5568;line-height:1.8;background:#f7fafc;padding:16px;border-radius:10px;border-left:4px solid #667eea"></div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div style="display:flex;gap:12px;flex-wrap:wrap">
+    <a href="/assessment" class="btn-primary" style="text-decoration:none;padding:12px 24px">🔄 Dobara Assessment Karo</a>
+    <a href="/internships-page" class="btn-secondary" style="text-decoration:none;padding:12px 24px">💼 Internships Dekho</a>
+    <a href="/careers-page" class="btn-secondary" style="text-decoration:none;padding:12px 24px">🚀 All Careers Dekho</a>
+    <a href="/dashboard" class="btn-secondary" style="text-decoration:none;padding:12px 24px">🏠 Dashboard</a>
+  </div>
+</div>
+
+<style>
+.result-banner{background:linear-gradient(135deg,#667eea,#764ba2);border-radius:16px;padding:28px 32px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;color:white}
+.result-banner h1{font-size:22px;font-weight:700;margin-bottom:6px}
+.result-banner p{font-size:13px;opacity:.85}
+.readiness-box{text-align:center;background:rgba(255,255,255,.15);padding:20px 28px;border-radius:14px}
+.career-rec-card{background:white;border-radius:14px;padding:22px;box-shadow:0 2px 12px rgba(0,0,0,.06);border:2px solid #f0f4ff;transition:.2s;position:relative}
+.career-rec-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,.12)}
+.career-rec-card.top1{border-color:#667eea;background:linear-gradient(135deg,#fafbff,white)}
+.rank-badge{position:absolute;top:-12px;left:20px;font-size:12px;padding:4px 12px;border-radius:20px;font-weight:700}
+.rank1{background:#667eea;color:white}
+.rank2{background:#764ba2;color:white}
+.rank3{background:#9f7aea;color:white}
+.score-bar-wrap{margin:12px 0}
+.score-label{display:flex;justify-content:space-between;font-size:12px;color:#718096;margin-bottom:4px}
+.skill-tag{display:inline-block;font-size:12px;padding:4px 10px;border-radius:6px;margin:3px;font-weight:500}
+.skill-have{background:#f0fff4;color:#276749}
+.skill-need{background:#fff5f5;color:#c53030}
+.btn-secondary{padding:12px 24px;background:#f0f4ff;color:#667eea;border:2px solid #667eea;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s}
+.btn-secondary:hover{background:#667eea;color:white}
+</style>
+
+<script src="/static/js/main.js"></script>
+<script>
+const token = getToken();
+if (!token) window.location.href = '/login';
+const s = getStudent();
+if (s) document.getElementById('avatarText').textContent = (s.full_name||'S').charAt(0).toUpperCase();
+
+const result = JSON.parse(localStorage.getItem('assessment_result') || '{}');
+if (!result.careers) { window.location.href = '/assessment'; }
+
+// Set readiness score
+document.getElementById('readinessScore').textContent = (result.readiness_score || 0) + '%';
+
+// Set personality
+const pIcons = {
+  'Analytical': '🔢', 'Creative': '🎨', 'Social': '👥',
+  'Leader': '👑', 'Technical': '💻', 'Balanced': '⚖️'
+};
+document.getElementById('personalityType').textContent = result.personality_type || 'Balanced';
+document.getElementById('personalityIcon').textContent = pIcons[result.personality_type] || '🧠';
+document.getElementById('personalityDesc').textContent = result.personality_desc || '';
+
+// Profile summary
+document.getElementById('profileSummary').innerHTML = (result.profile_summary || '').replace(/\n/g, '<br/>');
+
+// Career cards
+const careers = result.careers || [];
+const rankLabels = ['#1 Best Match 🥇', '#2 Great Fit 🥈', '#3 Good Option 🥉'];
+document.getElementById('careerCards').innerHTML = careers.map((c, i) => `
+  <div class="career-rec-card ${i===0?'top1':''}">
+    <span class="rank-badge rank${i+1}">${rankLabels[i]}</span>
+    <div style="margin-top:12px">
+      <div style="font-size:18px;font-weight:700;color:#1a1a2e;margin-bottom:4px">${c.title}</div>
+      <div style="font-size:12px;color:#a0aec0;margin-bottom:12px">${c.domain || ''}</div>
+      <div class="score-bar-wrap">
+        <div class="score-label"><span>Suitability Score</span><span style="color:#667eea;font-weight:700">${c.score}%</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${c.score}%"></div></div>
+      </div>
+      <div style="font-size:13px;color:#4a5568;margin:10px 0;line-height:1.5">${c.reason || ''}</div>
+      <div style="margin-top:10px">
+        <div style="font-size:12px;font-weight:600;color:#718096;margin-bottom:6px">Key Skills:</div>
+        ${(c.key_skills||[]).map(sk=>`<span class="skill-tag skill-have">${sk}</span>`).join('')}
+      </div>
+      <div style="margin-top:8px;font-size:13px">
+        <span style="color:#276749;font-weight:600">💰 ${c.salary_range || 'Varies'}</span>
+        <span style="color:#a0aec0;margin:0 8px">•</span>
+        <span style="color:#c05621;font-weight:600">📈 ${c.growth || 'Good'} growth</span>
+      </div>
+    </div>
+  </div>`).join('');
+
+// Skills
+const haveSkills = result.existing_skills || [];
+const needSkills = result.missing_skills || [];
+document.getElementById('existingSkills').innerHTML = haveSkills.map(s=>`<span class="skill-tag skill-have">✅ ${s}</span>`).join('') || '<p style="color:#a0aec0;font-size:13px">Assessment se detect hoga</p>';
+document.getElementById('missingSkills').innerHTML = needSkills.map(s=>`<span class="skill-tag skill-need">📚 ${s}</span>`).join('') || '<p style="color:#a0aec0;font-size:13px">Bahut accha! Koi gap nahi</p>';
+
+// AI Advice
+document.getElementById('aiAdvice').innerHTML = (result.ai_advice || '').replace(/\n/g,'<br/>');
+</script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Verify OTP — Career Navigator</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body class="auth-body">
+<div class="auth-container">
+  <div class="auth-left">
+    <div class="brand">
+      <div class="brand-icon">🎯</div>
+      <h1>Career Navigator</h1>
+      <p>First-Gen Students ke liye<br/>AI-Powered Career Guidance</p>
+    </div>
+    <div class="features">
+      <div class="feature-item">📧 OTP aapke email pe bheja gaya</div>
+      <div class="feature-item">⏰ 10 minutes mein expire hoga</div>
+      <div class="feature-item">🔒 Secure verification</div>
+      <div class="feature-item">✅ Ek baar verify = account ready</div>
+    </div>
+  </div>
+  <div class="auth-right">
+    <div class="auth-card">
+      <div style="text-align:center;margin-bottom:24px">
+        <div style="font-size:56px">📧</div>
+        <h2>OTP Verify Karo</h2>
+        <p class="auth-sub">6-digit code aapke email pe bheja gaya hai</p>
+        <p id="email-display" style="font-weight:600;color:#667eea;font-size:14px"></p>
+      </div>
+      <div id="error-msg" class="alert alert-error" style="display:none"></div>
+      <div id="success-msg" class="alert alert-success" style="display:none"></div>
+
+      <div class="otp-inputs">
+        <input class="otp-box" type="text" maxlength="1" id="o1" oninput="otpMove(this,'o2')" onkeydown="otpBack(event,this,'')"/>
+        <input class="otp-box" type="text" maxlength="1" id="o2" oninput="otpMove(this,'o3')" onkeydown="otpBack(event,this,'o1')"/>
+        <input class="otp-box" type="text" maxlength="1" id="o3" oninput="otpMove(this,'o4')" onkeydown="otpBack(event,this,'o2')"/>
+        <input class="otp-box" type="text" maxlength="1" id="o4" oninput="otpMove(this,'o5')" onkeydown="otpBack(event,this,'o3')"/>
+        <input class="otp-box" type="text" maxlength="1" id="o5" oninput="otpMove(this,'o6')" onkeydown="otpBack(event,this,'o4')"/>
+        <input class="otp-box" type="text" maxlength="1" id="o6" oninput="otpMove(this,'')"   onkeydown="otpBack(event,this,'o5')"/>
+      </div>
+
+      <button class="btn-primary" id="verifyBtn" onclick="verifyOTP()" style="margin-top:24px">
+        Verify Karo ✅
+      </button>
+
+      <div style="text-align:center;margin-top:20px">
+        <p style="font-size:13px;color:#718096">OTP nahi mila? 
+          <span id="resend-timer" style="color:#a0aec0"></span>
+          <a href="#" id="resend-btn" onclick="resendOTP()" style="display:none;color:#667eea;font-weight:600">Resend OTP</a>
+        </p>
+      </div>
+      <div class="divider"><span>ya</span></div>
+      <p class="auth-footer"><a href="/register">← Wapas Register</a></p>
+    </div>
+  </div>
+</div>
+<script src="/static/js/main.js"></script>
+<script>
+const email = localStorage.getItem('pending_email') || '';
+document.getElementById('email-display').textContent = email;
+
+// Auto-fill OTP if debug
+const debugOtp = localStorage.getItem('debug_otp');
+if (debugOtp) {
+  [...debugOtp].forEach((d,i) => {
+    const el = document.getElementById('o'+(i+1));
+    if (el) el.value = d;
+  });
+  localStorage.removeItem('debug_otp');
+}
+
+function otpMove(el, nextId) {
+  el.value = el.value.replace(/[^0-9]/g,'');
+  if (el.value && nextId) document.getElementById(nextId).focus();
+  if (!nextId) verifyOTP();
+}
+function otpBack(e, el, prevId) {
+  if (e.key==='Backspace' && !el.value && prevId) document.getElementById(prevId).focus();
+}
+
+async function verifyOTP() {
+  const otp = ['o1','o2','o3','o4','o5','o6'].map(id=>document.getElementById(id).value).join('');
+  if (otp.length !== 6) return showError('6-digit OTP daalo!');
+  const btn = document.getElementById('verifyBtn');
+  btn.textContent = 'Verifying...'; btn.disabled = true;
+  hideMessages();
+  try {
+    const res = await fetch('/api/auth/verify-otp', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({email, otp})
+    });
+    const data = await res.json();
+    if (res.ok) {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('student', JSON.stringify(data.student));
+      localStorage.removeItem('pending_email');
+      showSuccess('Verification successful! Dashboard pe ja rahe hain... 🎉');
+      setTimeout(() => window.location.href = '/dashboard', 1500);
+    } else {
+      showError(data.detail || 'Galat OTP!');
+      btn.textContent = 'Verify Karo ✅'; btn.disabled = false;
+    }
+  } catch(e) {
+    showError('Server error. Try again!');
+    btn.textContent = 'Verify Karo ✅'; btn.disabled = false;
+  }
+}
+
+// Resend timer
+let seconds = 60;
+const timerEl = document.getElementById('resend-timer');
+const resendBtn = document.getElementById('resend-btn');
+const timer = setInterval(() => {
+  seconds--;
+  timerEl.textContent = `(${seconds}s mein resend)`;
+  if (seconds <= 0) {
+    clearInterval(timer);
+    timerEl.style.display = 'none';
+    resendBtn.style.display = 'inline';
+  }
+}, 1000);
+
+async function resendOTP() {
+  hideMessages();
+  try {
+    const res = await fetch('/api/auth/resend-otp', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({email})
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showSuccess('Naya OTP bheja gaya!');
+      if (data.debug_otp) {
+        [...data.debug_otp].forEach((d,i) => {
+          const el = document.getElementById('o'+(i+1));
+          if (el) el.value = d;
+        });
+      }
+    } else showError(data.detail || 'Error!');
+  } catch(e) { showError('Server error!'); }
+}
+</script>
+</body>
+</html>

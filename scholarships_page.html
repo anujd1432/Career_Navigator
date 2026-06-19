@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Scholarships — Career Navigator</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-brand"><span>🎯</span> Career Navigator</div>
+  <div class="nav-links">
+    <a href="/dashboard">🏠 Dashboard</a>
+    <a href="/internships-page">💼 Internships</a>
+    <a href="/careers-page">🚀 Careers</a>
+    <a href="/scholarships-page" class="active">🎓 Scholarships</a>
+  </div>
+  <div class="nav-user">
+    <div class="avatar" id="avatarText">S</div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<div class="dashboard">
+  <div class="page-title">🎓 Scholarship Finder</div>
+  <div class="page-sub">2000+ scholarships mein se apne liye best dhundho — government, private, sab!</div>
+
+  <!-- Filters -->
+  <div class="filter-bar">
+    <input type="text" id="searchInput" placeholder="🔍 Scholarship search karo..." oninput="filterChange()" class="search-input"/>
+    <select id="categoryFilter" onchange="filterChange()">
+      <option value="">All Categories</option>
+      <option value="SC">SC</option><option value="ST">ST</option>
+      <option value="OBC">OBC</option><option value="General">General</option>
+      <option value="EWS">EWS</option><option value="Minority">Minority</option>
+    </select>
+    <select id="genderFilter" onchange="filterChange()">
+      <option value="">All Gender</option>
+      <option value="Female">Girls Only</option>
+      <option value="Any">All Gender</option>
+    </select>
+    <select id="firstGenFilter" onchange="filterChange()">
+      <option value="">All Students</option>
+      <option value="true">First Gen Preferred ⭐</option>
+    </select>
+    <button onclick="resetFilters()" class="reset-btn">Reset</button>
+  </div>
+
+  <div style="display:flex;gap:12px;margin-bottom:20px">
+    <div class="mini-badge blue-badge" id="totalCount">Loading...</div>
+    <div class="mini-badge green-badge">🏛️ Govt & Private</div>
+    <div class="mini-badge purple-badge">⭐ First Gen Preferred</div>
+  </div>
+
+  <div id="cardsGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px"></div>
+  <div id="pagination" style="display:flex;justify-content:center;gap:8px;margin-top:28px"></div>
+</div>
+
+<style>
+.filter-bar{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;background:white;padding:16px;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.search-input{flex:1;min-width:200px;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;outline:none}
+.search-input:focus{border-color:#667eea}
+.filter-bar select{padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:13px;outline:none;cursor:pointer;color:#4a5568}
+.reset-btn{padding:10px 18px;background:#f0f4ff;color:#667eea;border:2px solid #667eea;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer}
+.mini-badge{font-size:12px;padding:6px 14px;border-radius:20px;font-weight:600}
+.blue-badge{background:#ebf8ff;color:#2c5282}
+.green-badge{background:#f0fff4;color:#276749}
+.purple-badge{background:#faf5ff;color:#6b46c1}
+.sch-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.06);transition:.2s;border:1px solid #f0f4ff;display:flex;flex-direction:column}
+.sch-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,.12);border-color:#48bb78}
+.sch-amount{font-size:24px;font-weight:700;color:#276749;margin:10px 0 4px}
+.sch-name{font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:6px;line-height:1.4}
+.sch-body{font-size:12px;color:#718096;margin-bottom:12px}
+.sch-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.stag{font-size:11px;padding:3px 9px;border-radius:6px;font-weight:500}
+.stag-blue{background:#ebf8ff;color:#2c5282}
+.stag-green{background:#f0fff4;color:#276749}
+.stag-orange{background:#fffaf0;color:#c05621}
+.stag-purple{background:#faf5ff;color:#6b46c1}
+.stag-pink{background:#fff5f7;color:#97266d}
+.apply-btn{display:block;text-align:center;padding:10px;background:linear-gradient(135deg,#48bb78,#38a169);color:white;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;width:100%;margin-top:auto}
+.apply-btn:hover{opacity:.9}
+.page-btn{padding:8px 14px;border:2px solid #e2e8f0;border-radius:8px;background:white;cursor:pointer;font-size:13px;font-weight:600;color:#4a5568;transition:.2s}
+.page-btn:hover,.page-btn.active{background:#667eea;color:white;border-color:#667eea}
+.first-gen-star{font-size:10px;padding:2px 7px;border-radius:4px;background:#faf5ff;color:#6b46c1;font-weight:700}
+</style>
+
+<script src="/static/js/main.js"></script>
+<script>
+const token = getToken();
+if (!token) window.location.href = '/login';
+const s = getStudent();
+if (s) document.getElementById('avatarText').textContent = (s.full_name||'S').charAt(0).toUpperCase();
+
+let currentPage = 1;
+const perPage = 12;
+
+async function loadScholarships(page=1) {
+  const category = document.getElementById('categoryFilter').value;
+  const gender   = document.getElementById('genderFilter').value;
+  const firstGen = document.getElementById('firstGenFilter').value;
+  const search   = document.getElementById('searchInput').value.toLowerCase();
+
+  let url = `/scholarships?page=${page}&per_page=${perPage}`;
+  if (category) url += `&category=${encodeURIComponent(category)}`;
+  if (firstGen) url += `&first_gen=${firstGen}`;
+
+  document.getElementById('cardsGrid').innerHTML = '<div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading scholarships...</div>';
+
+  const res  = await fetch(url);
+  const data = await res.json();
+  let items  = data.data || [];
+
+  if (search) items = items.filter(s =>
+    s.scholarship_name.toLowerCase().includes(search) ||
+    (s.sponsoring_body||'').toLowerCase().includes(search)
+  );
+  if (gender) items = items.filter(s => s.eligible_gender === gender || s.eligible_gender === 'Any');
+
+  document.getElementById('totalCount').textContent = `📊 ${data.total.toLocaleString('en-IN')} Scholarships`;
+
+  if (!items.length) {
+    document.getElementById('cardsGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:#a0aec0"><div style="font-size:48px;margin-bottom:12px">😕</div><div>Koi scholarship nahi mili. Filters reset karo.</div></div>';
+    return;
+  }
+
+  document.getElementById('cardsGrid').innerHTML = items.map(s => `
+    <div class="sch-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <span style="font-size:11px;color:#a0aec0;background:#f7fafc;padding:2px 8px;border-radius:4px">${s.sponsoring_body}</span>
+        ${s.first_gen_preferred ? '<span class="first-gen-star">⭐ First Gen</span>' : ''}
+      </div>
+      <div class="sch-amount">₹${(s.amount_per_year||0).toLocaleString('en-IN')}/year</div>
+      <div class="sch-name">${s.scholarship_name}</div>
+      <div class="sch-body">📅 Deadline: ${s.application_deadline || 'Check website'}</div>
+      <div class="sch-tags">
+        <span class="stag stag-blue">👤 ${s.eligible_categories}</span>
+        <span class="stag stag-green">⚧ ${s.eligible_gender}</span>
+        ${s.eligible_streams ? `<span class="stag stag-orange">📚 ${s.eligible_streams}</span>` : ''}
+      </div>
+      <button class="apply-btn" onclick="applyScholarship('${s.scholarship_id}','${s.scholarship_name.replace(/'/g,"\\'")}')">Apply Now →</button>
+    </div>`).join('');
+
+  renderPagination(data.total, page);
+}
+
+function renderPagination(total, current) {
+  const pages = Math.ceil(total / perPage);
+  if (pages <= 1) { document.getElementById('pagination').innerHTML = ''; return; }
+  let html = '';
+  if (current > 1) html += `<button class="page-btn" onclick="goPage(${current-1})">← Prev</button>`;
+  for (let i = Math.max(1,current-2); i <= Math.min(pages,current+2); i++)
+    html += `<button class="page-btn ${i===current?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  if (current < pages) html += `<button class="page-btn" onclick="goPage(${current+1})">Next →</button>`;
+  document.getElementById('pagination').innerHTML = html;
+}
+
+function goPage(p) { currentPage=p; loadScholarships(p); window.scrollTo(0,0); }
+function filterChange() { loadScholarships(1); }
+function resetFilters() {
+  ['categoryFilter','genderFilter','firstGenFilter'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('searchInput').value='';
+  loadScholarships(1);
+}
+function applyScholarship(id, name) {
+  alert(`🎓 Scholarship: ${name}\n\nReal application tracking system coming soon!\n\nAbhi ke liye official website visit karein.`);
+}
+
+loadScholarships(1);
+</script>
+</body>
+</html>

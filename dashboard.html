@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — Career Navigator</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-brand"><span>🎯</span> Career Navigator</div>
+  <div class="nav-links">
+    <a href="/dashboard" class="active">🏠 Home</a>
+    <a href="/internships-page">💼 Internships</a>
+    <a href="/careers-page">🚀 Careers</a>
+    <a href="/scholarships-page">🎓 Scholarships</a>
+    <a href="/assessment">🎯 Assessment</a>
+    <a href="/mock-interview">🎤 Interview</a>
+    <a href="/resume">📄 Resume</a>
+    <a href="/chatbot">🤖 AI Chat</a>
+    <a href="/progress">📊 Progress</a>
+    <a href="/admin">🛡️ Admin</a>
+  </div>
+  <div class="nav-user">
+    <div class="avatar" id="avatarText">S</div>
+    <span id="navName" style="font-size:14px;font-weight:600;color:#4a5568;margin-right:8px"></span>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<div class="dashboard">
+  <!-- Welcome Banner -->
+  <div class="welcome-banner">
+    <div>
+      <h1 id="welcomeText">Namaste! 👋</h1>
+      <p id="welcomeSub">Aaj apna career journey aage badhao</p>
+    </div>
+    <div style="display:flex;gap:16px">
+      <div class="banner-stat"><div style="font-size:28px;font-weight:700" id="b1">—</div><div style="font-size:12px;opacity:.8">Internships</div></div>
+      <div class="banner-stat"><div style="font-size:28px;font-weight:700" id="b2">—</div><div style="font-size:12px;opacity:.8">Scholarships</div></div>
+      <div class="banner-stat"><div style="font-size:28px;font-weight:700" id="b3">—</div><div style="font-size:12px;opacity:.8">Careers</div></div>
+    </div>
+  </div>
+
+  <!-- Main Feature Cards -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px">
+    <a href="/internships-page" class="action-card blue-card">
+      <div class="action-icon">💼</div>
+      <div class="action-title">Internships</div>
+      <div class="action-sub" id="ac1">Loading...</div>
+      <div class="action-arrow">→</div>
+    </a>
+    <a href="/careers-page" class="action-card orange-card">
+      <div class="action-icon">🚀</div>
+      <div class="action-title">Careers</div>
+      <div class="action-sub" id="ac2">Loading...</div>
+      <div class="action-arrow">→</div>
+    </a>
+    <a href="/scholarships-page" class="action-card green-card">
+      <div class="action-icon">🎓</div>
+      <div class="action-title">Scholarships</div>
+      <div class="action-sub" id="ac3">Loading...</div>
+      <div class="action-arrow">→</div>
+    </a>
+    <a href="/chatbot" class="action-card purple-card">
+      <div class="action-icon">🤖</div>
+      <div class="action-title">AI Chatbot</div>
+      <div class="action-sub">Career guidance</div>
+      <div class="action-arrow">→</div>
+    </a>
+  </div>
+
+  <!-- AI Tools Row -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px">
+    <a href="/assessment" class="action-card" style="background:linear-gradient(135deg,#faf5ff,#e9d8fd);border:1px solid #e9d8fd">
+      <div class="action-icon">🎯</div>
+      <div class="action-title">AI Assessment</div>
+      <div class="action-sub">Best career discover karo</div>
+      <div class="action-arrow">→</div>
+    </a>
+    <a href="/mock-interview" class="action-card" style="background:linear-gradient(135deg,#fff5f7,#fed7e2);border:1px solid #fed7e2">
+      <div class="action-icon">🎤</div>
+      <div class="action-title">Mock Interview</div>
+      <div class="action-sub">AI se practice karo</div>
+      <div class="action-arrow">→</div>
+    </a>
+    <a href="/resume" class="action-card" style="background:linear-gradient(135deg,#f0fff4,#c6f6d5);border:1px solid #c6f6d5">
+      <div class="action-icon">📄</div>
+      <div class="action-title">Resume Builder</div>
+      <div class="action-sub">PDF banao + AI check</div>
+      <div class="action-arrow">→</div>
+    </a>
+    <a href="/progress" class="action-card" style="background:linear-gradient(135deg,#ebf8ff,#bee3f8);border:1px solid #bee3f8">
+      <div class="action-icon">📊</div>
+      <div class="action-title">Progress</div>
+      <div class="action-sub">Analytics dekho</div>
+      <div class="action-arrow">→</div>
+    </a>
+  </div>
+
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:24px">
+    <!-- Left -->
+    <div>
+      <div class="table-card" style="margin-bottom:20px">
+        <div class="table-header">
+          <div class="table-title">💼 Top Internships</div>
+          <a href="/internships-page" class="card-link">Sab dekho →</a>
+        </div>
+        <div id="internshipsList"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+      </div>
+
+      <div class="table-card" style="margin-bottom:20px">
+        <div class="table-header">
+          <div class="table-title">🎓 Top Scholarships</div>
+          <a href="/scholarships-page" class="card-link">Sab dekho →</a>
+        </div>
+        <div id="scholarshipsList"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">🚀 High Demand Careers</div>
+          <a href="/careers-page" class="card-link">Sab dekho →</a>
+        </div>
+        <div id="careersList"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- Right -->
+    <div>
+      <!-- Profile -->
+      <div class="card" style="margin-bottom:20px">
+        <div style="text-align:center;margin-bottom:16px">
+          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);color:white;font-size:26px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 10px" id="profileAvatar">S</div>
+          <h3 id="profileName" style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:4px"></h3>
+          <p id="profileEmail" style="font-size:12px;color:#a0aec0"></p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+          <div class="profile-row"><span>🎓 Degree</span><span id="pd1">—</span></div>
+          <div class="profile-row"><span>🏙️ City</span><span id="pd2">—</span></div>
+          <div class="profile-row"><span>📂 Category</span><span id="pd3">—</span></div>
+          <div class="profile-row"><span>⭐ First Gen</span><span style="color:#667eea;font-weight:600">Yes ✨</span></div>
+        </div>
+        <a href="/assessment" class="btn-primary" style="display:block;text-align:center;text-decoration:none;padding:10px;font-size:13px">🎯 Career Assessment Karo</a>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="card">
+        <div style="font-size:14px;font-weight:700;color:#1a1a2e;margin-bottom:14px">⚡ Quick Links</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <a href="/internships-page"  class="quick-link">💼 Internships Dhundho</a>
+          <a href="/scholarships-page" class="quick-link">🎓 Scholarship Apply</a>
+          <a href="/careers-page"      class="quick-link">🚀 Career Explore</a>
+          <a href="/assessment"        class="quick-link">🎯 Career Assessment</a>
+          <a href="/mock-interview"    class="quick-link">🎤 Mock Interview</a>
+          <a href="/resume"            class="quick-link">📄 Resume Builder</a>
+          <a href="/chatbot"           class="quick-link">🤖 AI Career Chat</a>
+          <a href="/progress"          class="quick-link">📊 Progress Dekho</a>
+          <a href="/admin"            class="quick-link">🛡️ Admin Panel</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.welcome-banner{background:linear-gradient(135deg,#667eea,#764ba2);border-radius:16px;padding:28px 32px;margin-bottom:28px;display:flex;justify-content:space-between;align-items:center;color:white}
+.welcome-banner h1{font-size:22px;margin-bottom:6px}
+.welcome-banner p{font-size:13px;opacity:.85}
+.banner-stat{text-align:center;background:rgba(255,255,255,.15);padding:12px 20px;border-radius:12px}
+.action-card{display:block;padding:20px;border-radius:14px;text-decoration:none;transition:.2s;position:relative;overflow:hidden}
+.action-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,.12)}
+.blue-card{background:linear-gradient(135deg,#ebf8ff,#bee3f8);border:1px solid #bee3f8}
+.orange-card{background:linear-gradient(135deg,#fffaf0,#feebc8);border:1px solid #feebc8}
+.green-card{background:linear-gradient(135deg,#f0fff4,#c6f6d5);border:1px solid #c6f6d5}
+.purple-card{background:linear-gradient(135deg,#faf5ff,#e9d8fd);border:1px solid #e9d8fd}
+.action-icon{font-size:28px;margin-bottom:8px}
+.action-title{font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:4px}
+.action-sub{font-size:12px;color:#718096}
+.action-arrow{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:20px;color:#a0aec0}
+.profile-row{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid #f7fafc;color:#4a5568}
+.quick-link{display:block;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:500;color:#4a5568;text-decoration:none;background:#f7fafc;transition:.2s}
+.quick-link:hover{background:#f0f4ff;color:#667eea;padding-left:18px}
+.item-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #f7fafc;font-size:13px}
+.item-row:last-child{border-bottom:none}
+.item-name{font-weight:600;color:#1a1a2e;margin-bottom:2px}
+.item-sub{color:#a0aec0;font-size:11px}
+.tag{font-size:11px;padding:3px 9px;border-radius:6px;font-weight:600;white-space:nowrap}
+.tag-green{background:#f0fff4;color:#276749}
+.tag-blue{background:#ebf8ff;color:#2c5282}
+.tag-orange{background:#fffaf0;color:#c05621}
+</style>
+
+<script src="/static/js/main.js"></script>
+<script>
+const token = getToken();
+if (!token) window.location.href = '/login';
+
+const up = new URLSearchParams(window.location.search);
+if (up.get('token')) {
+  localStorage.setItem('token', up.get('token'));
+  if (up.get('name')) localStorage.setItem('student', JSON.stringify({full_name: decodeURIComponent(up.get('name'))}));
+  window.history.replaceState({}, '', '/dashboard');
+  location.reload();
+}
+
+const s = getStudent();
+if (s) {
+  const name = s.full_name || 'Student';
+  const init = name.charAt(0).toUpperCase();
+  document.getElementById('welcomeText').textContent   = `Namaste, ${name.split(' ')[0]}! 👋`;
+  document.getElementById('welcomeSub').textContent    = `Student ID: ${s.student_id||''} | Aaj apna career journey aage badhao`;
+  document.getElementById('avatarText').textContent    = init;
+  document.getElementById('profileAvatar').textContent = init;
+  document.getElementById('navName').textContent       = name.split(' ')[0];
+  document.getElementById('profileName').textContent   = name;
+  document.getElementById('profileEmail').textContent  = s.email || '';
+  document.getElementById('pd1').textContent = s.current_degree || '—';
+  document.getElementById('pd2').textContent = s.city || '—';
+  document.getElementById('pd3').textContent = s.category || '—';
+}
+
+async function loadStats() {
+  try {
+    const res = await fetch('/stats');
+    const d   = await res.json();
+    document.getElementById('b1').textContent  = (d.active_internships||0).toLocaleString('en-IN');
+    document.getElementById('b2').textContent  = (d.total_scholarships||0).toLocaleString('en-IN');
+    document.getElementById('b3').textContent  = (d.total_careers||0).toLocaleString('en-IN');
+    document.getElementById('ac1').textContent = (d.active_internships||0).toLocaleString('en-IN') + ' available';
+    document.getElementById('ac2').textContent = (d.total_careers||0).toLocaleString('en-IN') + ' career paths';
+    document.getElementById('ac3').textContent = (d.total_scholarships||0).toLocaleString('en-IN') + ' available';
+  } catch(e) {}
+}
+
+async function loadInternships() {
+  try {
+    const res = await fetch('/internships?per_page=4');
+    const d   = await res.json();
+    document.getElementById('internshipsList').innerHTML = (d.data||[]).map(i => `
+      <div class="item-row">
+        <div>
+          <div class="item-name">${i.company_name}</div>
+          <div class="item-sub">${i.role_title} • ${i.mode} • ${i.location}</div>
+        </div>
+        <span class="tag ${i.stipend_per_month>0?'tag-green':'tag-blue'}">${i.stipend_per_month>0?'₹'+i.stipend_per_month.toLocaleString('en-IN')+'/mo':'Unpaid'}</span>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+async function loadScholarships() {
+  try {
+    const res = await fetch('/scholarships?per_page=4');
+    const d   = await res.json();
+    document.getElementById('scholarshipsList').innerHTML = (d.data||[]).map(s => `
+      <div class="item-row">
+        <div>
+          <div class="item-name">${s.scholarship_name.length>40?s.scholarship_name.substring(0,40)+'...':s.scholarship_name}</div>
+          <div class="item-sub">${s.sponsoring_body} • ${s.eligible_categories}</div>
+        </div>
+        <span class="tag tag-blue">₹${(s.amount_per_year||0).toLocaleString('en-IN')}</span>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+async function loadCareers() {
+  try {
+    const res = await fetch('/careers?per_page=4&demand_level=Very%20High');
+    const d   = await res.json();
+    document.getElementById('careersList').innerHTML = (d.data||[]).map(c => `
+      <div class="item-row">
+        <div>
+          <div class="item-name">${c.career_title}</div>
+          <div class="item-sub">${c.domain} • ₹${c.avg_salary_lpa_entry} LPA entry</div>
+        </div>
+        <span class="tag tag-green">+${c.growth_rate_pct}% growth</span>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+loadStats(); loadInternships(); loadScholarships(); loadCareers();
+</script>
+</body>
+</html>
