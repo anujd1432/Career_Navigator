@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Resume Builder — Career Navigator</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-brand"><span>🎯</span> Career Navigator</div>
+  <div class="nav-links">
+    <a href="/dashboard">🏠 Dashboard</a>
+    <a href="/internships-page">💼 Internships</a>
+    <a href="/careers-page">🚀 Careers</a>
+    <a href="/scholarships-page">🎓 Scholarships</a>
+    <a href="/chatbot">🤖 AI Chat</a>
+  </div>
+  <div class="nav-user">
+    <div class="avatar" id="avatarText">S</div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<div class="resume-layout">
+  <!-- Left: Form -->
+  <div class="resume-form-panel">
+    <div class="panel-header">
+      <h2>📄 Resume Builder</h2>
+      <p>Fill karo — live preview right side pe dikhega!</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="form-tabs">
+      <button class="ftab active" onclick="switchTab('personal')">👤 Personal</button>
+      <button class="ftab" onclick="switchTab('education')">🎓 Education</button>
+      <button class="ftab" onclick="switchTab('experience')">💼 Experience</button>
+      <button class="ftab" onclick="switchTab('skills')">⚡ Skills</button>
+      <button class="ftab" onclick="switchTab('extra')">🌟 Extra</button>
+    </div>
+
+    <!-- Personal Info -->
+    <div id="tab-personal" class="tab-content">
+      <div class="form-group"><label>Full Name *</label><input id="r_name" placeholder="Rahul Sharma" oninput="updatePreview()"/></div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Email *</label><input id="r_email" placeholder="rahul@email.com" oninput="updatePreview()"/></div>
+        <div class="form-group"><label>Phone *</label><input id="r_phone" placeholder="9876543210" oninput="updatePreview()"/></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>City</label><input id="r_city" placeholder="Mumbai" oninput="updatePreview()"/></div>
+        <div class="form-group"><label>LinkedIn</label><input id="r_linkedin" placeholder="linkedin.com/in/rahul" oninput="updatePreview()"/></div>
+      </div>
+      <div class="form-group"><label>GitHub / Portfolio</label><input id="r_github" placeholder="github.com/rahul" oninput="updatePreview()"/></div>
+      <div class="form-group">
+        <label>Professional Summary (2-3 lines)</label>
+        <textarea id="r_summary" rows="3" placeholder="Motivated B.Tech student seeking opportunities in..." oninput="updatePreview()"></textarea>
+        <button class="ai-suggest-btn" onclick="aiGenerateSummary()">🤖 AI se Summary Generate Karo</button>
+      </div>
+    </div>
+
+    <!-- Education -->
+    <div id="tab-education" class="tab-content" style="display:none">
+      <div style="font-size:14px;font-weight:600;color:#4a5568;margin-bottom:12px">🎓 Current Degree</div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Degree *</label>
+          <select id="r_degree" oninput="updatePreview()">
+            <option value="">Select</option>
+            <option>B.Tech</option><option>B.Sc</option><option>BCA</option>
+            <option>BBA</option><option>B.Com</option><option>BA</option>
+            <option>MBA</option><option>M.Tech</option><option>MCA</option><option>Diploma</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Branch/Stream</label><input id="r_branch" placeholder="Computer Science" oninput="updatePreview()"/></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>College Name *</label><input id="r_college" placeholder="XYZ University" oninput="updatePreview()"/></div>
+        <div class="form-group"><label>CGPA / %</label><input id="r_cgpa" placeholder="8.5 / 85%" oninput="updatePreview()"/></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Start Year</label><input id="r_edu_start" placeholder="2021" oninput="updatePreview()"/></div>
+        <div class="form-group"><label>End Year</label><input id="r_edu_end" placeholder="2025 / Present" oninput="updatePreview()"/></div>
+      </div>
+
+      <div style="font-size:14px;font-weight:600;color:#4a5568;margin:16px 0 12px">🏫 12th Details</div>
+      <div class="form-row-2">
+        <div class="form-group"><label>School Name</label><input id="r_school" placeholder="ABC School" oninput="updatePreview()"/></div>
+        <div class="form-group"><label>Board</label><input id="r_board" placeholder="CBSE / State Board" oninput="updatePreview()"/></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Percentage</label><input id="r_12pct" placeholder="85%" oninput="updatePreview()"/></div>
+        <div class="form-group"><label>Year</label><input id="r_12year" placeholder="2021" oninput="updatePreview()"/></div>
+      </div>
+    </div>
+
+    <!-- Experience -->
+    <div id="tab-experience" class="tab-content" style="display:none">
+      <div id="exp-list"></div>
+      <button class="add-btn" onclick="addExperience()">+ Internship/Project Add Karo</button>
+
+      <div style="margin-top:20px;font-size:14px;font-weight:600;color:#4a5568;margin-bottom:12px">🏆 Projects</div>
+      <div id="proj-list"></div>
+      <button class="add-btn" onclick="addProject()">+ Project Add Karo</button>
+    </div>
+
+    <!-- Skills -->
+    <div id="tab-skills" class="tab-content" style="display:none">
+      <div class="form-group">
+        <label>Technical Skills (comma separated)</label>
+        <textarea id="r_tech_skills" rows="3" placeholder="Python, JavaScript, SQL, Machine Learning, Git, Docker" oninput="updatePreview()"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Soft Skills (comma separated)</label>
+        <textarea id="r_soft_skills" rows="2" placeholder="Communication, Leadership, Problem Solving, Teamwork" oninput="updatePreview()"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Languages Known</label>
+        <input id="r_languages" placeholder="Hindi, English, Marathi" oninput="updatePreview()"/>
+      </div>
+      <div class="form-group">
+        <label>Certifications</label>
+        <textarea id="r_certs" rows="3" placeholder="AWS Cloud Practitioner — 2024&#10;Google Analytics — 2023&#10;Python for Data Science — Coursera 2023" oninput="updatePreview()"></textarea>
+      </div>
+    </div>
+
+    <!-- Extra -->
+    <div id="tab-extra" class="tab-content" style="display:none">
+      <div class="form-group">
+        <label>Achievements / Awards</label>
+        <textarea id="r_achievements" rows="3" placeholder="• 1st Prize in National Hackathon 2023&#10;• Merit Scholarship recipient&#10;• Best Student Award" oninput="updatePreview()"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Extra Curricular Activities</label>
+        <textarea id="r_extra" rows="3" placeholder="• NSS Volunteer — 2 years&#10;• Cricket Team Captain&#10;• Cultural Club Secretary" oninput="updatePreview()"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Hobbies & Interests</label>
+        <input id="r_hobbies" placeholder="Reading, Photography, Coding, Travelling" oninput="updatePreview()"/>
+      </div>
+      <div class="form-group">
+        <label>Declaration</label>
+        <textarea id="r_declaration" rows="2" placeholder="I hereby declare that the above information is true and correct to the best of my knowledge." oninput="updatePreview()"></textarea>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="form-actions">
+      <button class="btn-primary" onclick="downloadPDF()">⬇️ PDF Download Karo</button>
+      <button class="btn-secondary-sm" onclick="aiAnalyzeResume()">🤖 AI Resume Check</button>
+    </div>
+  </div>
+
+  <!-- Right: Preview -->
+  <div class="resume-preview-panel">
+    <div class="preview-header">
+      <span>👀 Live Preview</span>
+      <div style="display:flex;gap:8px">
+        <select id="templateSelect" onchange="updatePreview()" style="font-size:12px;padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px">
+          <option value="modern">Modern Blue</option>
+          <option value="classic">Classic Black</option>
+          <option value="minimal">Minimal Clean</option>
+        </select>
+      </div>
+    </div>
+    <div class="preview-scroll">
+      <div id="resumePreview" class="resume-paper">
+        <div style="text-align:center;color:#a0aec0;padding:60px 20px">
+          <div style="font-size:48px;margin-bottom:12px">📄</div>
+          <div style="font-size:16px;font-weight:600">Left side fill karo</div>
+          <div style="font-size:13px;margin-top:8px">Resume yahan dikhega!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AI Score Modal -->
+<div id="aiModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center">
+  <div style="background:white;border-radius:16px;padding:28px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="font-size:18px;font-weight:700;color:#1a1a2e">🤖 AI Resume Analysis</h3>
+      <button onclick="closeModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#a0aec0">✕</button>
+    </div>
+    <div id="aiModalContent"><div class="loading"><div class="spinner"></div>Analyzing...</div></div>
+  </div>
+</div>
+
+<style>
+body { overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+.navbar { flex-shrink: 0; }
+.resume-layout { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 64px); }
+
+/* Form Panel */
+.resume-form-panel { width: 420px; flex-shrink: 0; background: white; border-right: 1px solid #f0f4ff; display: flex; flex-direction: column; overflow: hidden; }
+.panel-header { padding: 20px 20px 0; flex-shrink: 0; }
+.panel-header h2 { font-size: 18px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+.panel-header p { font-size: 12px; color: #a0aec0; }
+
+/* Tabs */
+.form-tabs { display: flex; gap: 4px; padding: 12px 20px; border-bottom: 1px solid #f0f4ff; flex-shrink: 0; overflow-x: auto; }
+.ftab { padding: 7px 12px; border-radius: 8px; border: none; background: none; font-size: 12px; font-weight: 600; color: #a0aec0; cursor: pointer; white-space: nowrap; transition: .2s; }
+.ftab.active { background: #f0f4ff; color: #667eea; }
+.tab-content { padding: 16px 20px; overflow-y: auto; flex: 1; }
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 12px; font-weight: 600; color: #4a5568; margin-bottom: 5px; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 13px; outline: none; font-family: inherit; transition: .2s; box-sizing: border-box; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #667eea; }
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ai-suggest-btn { font-size: 12px; padding: 6px 12px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 6px; cursor: pointer; margin-top: 6px; }
+.add-btn { font-size: 13px; padding: 8px 16px; background: #f0f4ff; color: #667eea; border: 2px dashed #667eea; border-radius: 8px; cursor: pointer; width: 100%; margin-bottom: 8px; }
+.form-actions { padding: 12px 20px; border-top: 1px solid #f0f4ff; display: flex; gap: 10px; flex-shrink: 0; }
+.btn-primary { flex: 1; padding: 11px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.btn-secondary-sm { padding: 11px 16px; background: #f0f4ff; color: #667eea; border: 2px solid #667eea; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+
+/* Preview Panel */
+.resume-preview-panel { flex: 1; background: #f0f4ff; display: flex; flex-direction: column; overflow: hidden; }
+.preview-header { padding: 12px 20px; background: white; border-bottom: 1px solid #f0f4ff; display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; color: #4a5568; flex-shrink: 0; }
+.preview-scroll { flex: 1; overflow-y: auto; padding: 20px; display: flex; justify-content: center; }
+.resume-paper { width: 210mm; min-height: 297mm; background: white; box-shadow: 0 4px 20px rgba(0,0,0,.15); padding: 0; font-family: 'Arial', sans-serif; }
+
+/* Experience cards in form */
+.exp-card { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; margin-bottom: 10px; position: relative; }
+.exp-card .remove-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; color: #e53e3e; cursor: pointer; font-size: 16px; }
+.exp-card input, .exp-card textarea { width: 100%; padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; margin-bottom: 6px; outline: none; font-family: inherit; box-sizing: border-box; }
+</style>
+
+<script src="/static/js/main.js"></script>
+<script>
+const token = getToken();
+if (!token) window.location.href = '/login';
+const s = getStudent();
+if (s) {
+  document.getElementById('avatarText').textContent = (s.full_name||'S').charAt(0).toUpperCase();
+  // Auto-fill from student data
+  if (s.full_name)  document.getElementById('r_name').value  = s.full_name;
+  if (s.email)      document.getElementById('r_email').value = s.email;
+  if (s.city)       document.getElementById('r_city').value  = s.city;
+  if (s.current_degree) document.getElementById('r_degree').value = s.current_degree;
+  setTimeout(updatePreview, 100);
+}
+
+let experiences = [];
+let projects    = [];
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).style.display = 'block';
+  event.target.classList.add('active');
+}
+
+function addExperience() {
+  const id = Date.now();
+  experiences.push(id);
+  const div = document.createElement('div');
+  div.className = 'exp-card';
+  div.id = `exp-${id}`;
+  div.innerHTML = `
+    <button class="remove-btn" onclick="removeExp(${id})">✕</button>
+    <input placeholder="Role/Position (e.g. Software Intern)" id="exp-role-${id}" oninput="updatePreview()"/>
+    <input placeholder="Company Name" id="exp-company-${id}" oninput="updatePreview()"/>
+    <input placeholder="Duration (e.g. Jun 2024 - Aug 2024)" id="exp-dur-${id}" oninput="updatePreview()"/>
+    <textarea rows="3" placeholder="• What you did&#10;• Impact created&#10;• Technologies used" id="exp-desc-${id}" oninput="updatePreview()"></textarea>`;
+  document.getElementById('exp-list').appendChild(div);
+}
+
+function removeExp(id) {
+  experiences = experiences.filter(e => e !== id);
+  document.getElementById(`exp-${id}`).remove();
+  updatePreview();
+}
+
+function addProject() {
+  const id = Date.now();
+  projects.push(id);
+  const div = document.createElement('div');
+  div.className = 'exp-card';
+  div.id = `proj-${id}`;
+  div.innerHTML = `
+    <button class="remove-btn" onclick="removeProj(${id})">✕</button>
+    <input placeholder="Project Name" id="proj-name-${id}" oninput="updatePreview()"/>
+    <input placeholder="Tech Stack (e.g. Python, React, MongoDB)" id="proj-tech-${id}" oninput="updatePreview()"/>
+    <textarea rows="2" placeholder="• Project description&#10;• Key features&#10;• GitHub link" id="proj-desc-${id}" oninput="updatePreview()"></textarea>`;
+  document.getElementById('proj-list').appendChild(div);
+}
+
+function removeProj(id) {
+  projects = projects.filter(p => p !== id);
+  document.getElementById(`proj-${id}`).remove();
+  updatePreview();
+}
+
+function getVal(id) { return (document.getElementById(id)?.value || '').trim(); }
+
+function updatePreview() {
+  const template = getVal('templateSelect') || 'modern';
+  const name     = getVal('r_name') || 'Your Name';
+  const email    = getVal('r_email');
+  const phone    = getVal('r_phone');
+  const city     = getVal('r_city');
+  const linkedin = getVal('r_linkedin');
+  const github   = getVal('r_github');
+  const summary  = getVal('r_summary');
+  const degree   = getVal('r_degree');
+  const branch   = getVal('r_branch');
+  const college  = getVal('r_college');
+  const cgpa     = getVal('r_cgpa');
+  const eduStart = getVal('r_edu_start');
+  const eduEnd   = getVal('r_edu_end');
+  const school   = getVal('r_school');
+  const board    = getVal('r_board');
+  const pct12    = getVal('r_12pct');
+  const yr12     = getVal('r_12year');
+  const techSkills = getVal('r_tech_skills');
+  const softSkills = getVal('r_soft_skills');
+  const languages  = getVal('r_languages');
+  const certs      = getVal('r_certs');
+  const achievements = getVal('r_achievements');
+  const extra      = getVal('r_extra');
+  const hobbies    = getVal('r_hobbies');
+  const declaration = getVal('r_declaration');
+
+  const colors = { modern: '#667eea', classic: '#1a1a2e', minimal: '#4a5568' };
+  const color  = colors[template] || '#667eea';
+
+  const contactLine = [email, phone, city, linkedin, github].filter(Boolean).join('  |  ');
+
+  const expHTML = experiences.map(id => {
+    const role    = getVal(`exp-role-${id}`);
+    const company = getVal(`exp-company-${id}`);
+    const dur     = getVal(`exp-dur-${id}`);
+    const desc    = getVal(`exp-desc-${id}`);
+    if (!role && !company) return '';
+    return `<div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <div style="font-size:13px;font-weight:700;color:#1a1a2e">${role}</div>
+        <div style="font-size:11px;color:#718096">${dur}</div>
+      </div>
+      <div style="font-size:12px;color:${color};font-weight:600;margin-bottom:4px">${company}</div>
+      <div style="font-size:11px;color:#4a5568;white-space:pre-line;line-height:1.6">${desc}</div>
+    </div>`;
+  }).join('');
+
+  const projHTML = projects.map(id => {
+    const pname = getVal(`proj-name-${id}`);
+    const tech  = getVal(`proj-tech-${id}`);
+    const pdesc = getVal(`proj-desc-${id}`);
+    if (!pname) return '';
+    return `<div style="margin-bottom:12px">
+      <div style="font-size:13px;font-weight:700;color:#1a1a2e">${pname} <span style="font-size:11px;color:${color};font-weight:500">| ${tech}</span></div>
+      <div style="font-size:11px;color:#4a5568;white-space:pre-line;line-height:1.6;margin-top:4px">${pdesc}</div>
+    </div>`;
+  }).join('');
+
+  const section = (title, content) => content ? `
+    <div style="margin-bottom:18px">
+      <div style="font-size:13px;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid ${color};padding-bottom:4px;margin-bottom:10px">${title}</div>
+      ${content}
+    </div>` : '';
+
+  const skillsHTML = [
+    techSkills ? `<div style="margin-bottom:6px"><strong style="font-size:11px;color:#4a5568">Technical:</strong> <span style="font-size:11px;color:#1a1a2e">${techSkills}</span></div>` : '',
+    softSkills ? `<div style="margin-bottom:6px"><strong style="font-size:11px;color:#4a5568">Soft Skills:</strong> <span style="font-size:11px;color:#1a1a2e">${softSkills}</span></div>` : '',
+    languages  ? `<div style="margin-bottom:6px"><strong style="font-size:11px;color:#4a5568">Languages:</strong> <span style="font-size:11px;color:#1a1a2e">${languages}</span></div>` : '',
+  ].join('');
+
+  const certsHTML = certs ? certs.split('\n').filter(Boolean).map(c =>
+    `<div style="font-size:11px;color:#4a5568;margin-bottom:4px">• ${c}</div>`).join('') : '';
+
+  document.getElementById('resumePreview').innerHTML = `
+    <div style="padding:28px 32px;font-family:Arial,sans-serif">
+      <!-- Header -->
+      <div style="text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:3px solid ${color}">
+        <div style="font-size:26px;font-weight:700;color:#1a1a2e;letter-spacing:1px">${name}</div>
+        ${contactLine ? `<div style="font-size:11px;color:#718096;margin-top:6px;line-height:1.8">${contactLine}</div>` : ''}
+      </div>
+
+      ${section('Professional Summary', summary ? `<div style="font-size:11px;color:#4a5568;line-height:1.7">${summary}</div>` : '')}
+
+      ${section('Education',
+        (degree || college ? `<div style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between">
+            <div style="font-size:13px;font-weight:700;color:#1a1a2e">${degree} ${branch ? '— ' + branch : ''}</div>
+            <div style="font-size:11px;color:#718096">${eduStart}${eduEnd ? ' – ' + eduEnd : ''}</div>
+          </div>
+          <div style="font-size:12px;color:${color};font-weight:600">${college}</div>
+          ${cgpa ? `<div style="font-size:11px;color:#4a5568">CGPA / %: ${cgpa}</div>` : ''}
+        </div>` : '') +
+        (school ? `<div>
+          <div style="display:flex;justify-content:space-between">
+            <div style="font-size:13px;font-weight:700;color:#1a1a2e">12th — ${board || ''}</div>
+            <div style="font-size:11px;color:#718096">${yr12}</div>
+          </div>
+          <div style="font-size:12px;color:${color};font-weight:600">${school}</div>
+          ${pct12 ? `<div style="font-size:11px;color:#4a5568">Percentage: ${pct12}</div>` : ''}
+        </div>` : '')
+      )}
+
+      ${expHTML ? section('Internship / Work Experience', expHTML) : ''}
+      ${projHTML ? section('Projects', projHTML) : ''}
+      ${skillsHTML ? section('Skills', skillsHTML) : ''}
+      ${certsHTML ? section('Certifications', certsHTML) : ''}
+      ${achievements ? section('Achievements & Awards', `<div style="font-size:11px;color:#4a5568;white-space:pre-line;line-height:1.8">${achievements}</div>`) : ''}
+      ${extra ? section('Extra Curricular Activities', `<div style="font-size:11px;color:#4a5568;white-space:pre-line;line-height:1.8">${extra}</div>`) : ''}
+      ${hobbies ? section('Hobbies & Interests', `<div style="font-size:11px;color:#4a5568">${hobbies}</div>`) : ''}
+      ${declaration ? section('Declaration', `<div style="font-size:11px;color:#4a5568;font-style:italic">${declaration}</div>`) : ''}
+    </div>`;
+}
+
+function downloadPDF() {
+  const name = getVal('r_name') || 'Resume';
+  const element = document.getElementById('resumePreview');
+  const opt = {
+    margin: 0,
+    filename: `${name.replace(/\s+/g,'_')}_Resume.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(element).save();
+}
+
+async function aiGenerateSummary() {
+  const name   = getVal('r_name');
+  const degree = getVal('r_degree');
+  const branch = getVal('r_branch');
+  const skills = getVal('r_tech_skills');
+  if (!name) { alert('Pehle naam daalo!'); return; }
+
+  const btn = event.target;
+  btn.textContent = '⏳ Generating...'; btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/chatbot/message', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({
+        message: `Write a professional resume summary (2-3 lines, ATS-friendly) for: Name: ${name}, Degree: ${degree} in ${branch}, Skills: ${skills}. Just the summary text, no quotes or extra text.`,
+        history: [],
+        student_name: name,
+      })
+    });
+    const data = await res.json();
+    document.getElementById('r_summary').value = data.reply || '';
+    updatePreview();
+  } catch(e) {
+    alert('AI error. Try again!');
+  }
+  btn.textContent = '🤖 AI se Summary Generate Karo'; btn.disabled = false;
+}
+
+async function aiAnalyzeResume() {
+  const name = getVal('r_name');
+  if (!name) { alert('Pehle resume fill karo!'); return; }
+
+  document.getElementById('aiModal').style.display = 'flex';
+  document.getElementById('aiModalContent').innerHTML = '<div class="loading"><div class="spinner"></div>AI analyze kar raha hai...</div>';
+
+  const resumeText = `
+    Name: ${getVal('r_name')}
+    Email: ${getVal('r_email')}
+    Summary: ${getVal('r_summary')}
+    Degree: ${getVal('r_degree')} in ${getVal('r_branch')} from ${getVal('r_college')}
+    CGPA: ${getVal('r_cgpa')}
+    Technical Skills: ${getVal('r_tech_skills')}
+    Soft Skills: ${getVal('r_soft_skills')}
+    Certifications: ${getVal('r_certs')}
+    Achievements: ${getVal('r_achievements')}
+  `;
+
+  try {
+    const res = await fetch('/api/chatbot/message', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({
+        message: `Analyze this resume and give: 1) Resume Score out of 100, 2) Top 3 strengths, 3) Top 3 improvements needed, 4) ATS score, 5) Missing keywords. Be specific and helpful.\n\nResume:\n${resumeText}`,
+        history: [],
+        student_name: name,
+      })
+    });
+    const data = await res.json();
+    document.getElementById('aiModalContent').innerHTML = `
+      <div style="font-size:14px;color:#4a5568;line-height:1.8;white-space:pre-wrap">${data.reply}</div>`;
+  } catch(e) {
+    document.getElementById('aiModalContent').innerHTML = '<p style="color:#e53e3e">Error! Try again.</p>';
+  }
+}
+
+function closeModal() { document.getElementById('aiModal').style.display = 'none'; }
+
+// Initial render
+updatePreview();
+</script>
+</body>
+</html>

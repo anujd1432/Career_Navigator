@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Careers — Career Navigator</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-brand"><span>🎯</span> Career Navigator</div>
+  <div class="nav-links">
+    <a href="/dashboard">🏠 Dashboard</a>
+    <a href="/internships-page">💼 Internships</a>
+    <a href="/careers-page" class="active">🚀 Careers</a>
+    <a href="/scholarships-page">🎓 Scholarships</a>
+  </div>
+  <div class="nav-user">
+    <div class="avatar" id="avatarText">S</div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<div class="dashboard">
+  <div class="page-title">🚀 Career Explorer</div>
+  <div class="page-sub">500+ career paths explore karo — salary, growth aur requirements dekho!</div>
+
+  <!-- Filters -->
+  <div class="filter-bar">
+    <input type="text" id="searchInput" placeholder="🔍 Career search karo..." oninput="filterChange()" class="search-input"/>
+    <select id="domainFilter" onchange="filterChange()">
+      <option value="">All Domains</option>
+      <option>IT</option><option>Government</option><option>Healthcare</option>
+      <option>Finance</option><option>Engineering</option><option>Education</option>
+      <option>Business</option><option>Legal</option><option>Media</option>
+      <option>Science</option><option>Design</option><option>Agriculture</option>
+    </select>
+    <select id="demandFilter" onchange="filterChange()">
+      <option value="">All Demand</option>
+      <option value="Very High">🔥 Very High</option>
+      <option value="High">⬆️ High</option>
+      <option value="Medium">➡️ Medium</option>
+    </select>
+    <select id="examFilter" onchange="filterChange()">
+      <option value="">Exam Required?</option>
+      <option value="false">No Exam</option>
+      <option value="true">Exam Required</option>
+    </select>
+    <button onclick="resetFilters()" class="reset-btn">Reset</button>
+  </div>
+
+  <div style="display:flex;gap:12px;margin-bottom:20px">
+    <div class="mini-badge blue-badge" id="totalCount">Loading...</div>
+    <div class="mini-badge green-badge">🔥 High Growth Careers</div>
+    <div class="mini-badge purple-badge">🤖 AI Recommended</div>
+  </div>
+
+  <div id="cardsGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px"></div>
+  <div id="pagination" style="display:flex;justify-content:center;gap:8px;margin-top:28px"></div>
+</div>
+
+<style>
+.filter-bar{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;background:white;padding:16px;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.search-input{flex:1;min-width:200px;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;outline:none}
+.search-input:focus{border-color:#667eea}
+.filter-bar select{padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:13px;outline:none;cursor:pointer;color:#4a5568}
+.reset-btn{padding:10px 18px;background:#f0f4ff;color:#667eea;border:2px solid #667eea;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer}
+.mini-badge{font-size:12px;padding:6px 14px;border-radius:20px;font-weight:600}
+.blue-badge{background:#ebf8ff;color:#2c5282}
+.green-badge{background:#f0fff4;color:#276749}
+.orange-badge{background:#fffaf0;color:#c05621}
+.purple-badge{background:#faf5ff;color:#6b46c1}
+.career-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.06);transition:.2s;border:1px solid #f0f4ff;display:flex;flex-direction:column}
+.career-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,.12);border-color:#667eea}
+.demand-badge{font-size:11px;padding:3px 9px;border-radius:6px;font-weight:600}
+.demand-vh{background:#fff5f5;color:#c53030}
+.demand-h{background:#fffaf0;color:#c05621}
+.demand-m{background:#f0fff4;color:#276749}
+.salary-row{display:flex;gap:8px;margin:12px 0}
+.salary-box{flex:1;background:#f7fafc;border-radius:8px;padding:8px;text-align:center}
+.salary-box .s-val{font-size:14px;font-weight:700;color:#1a1a2e}
+.salary-box .s-lbl{font-size:10px;color:#a0aec0;margin-top:2px}
+.ctag{font-size:11px;padding:3px 9px;border-radius:6px;font-weight:500;margin:2px}
+.ctag-blue{background:#ebf8ff;color:#2c5282}
+.ctag-orange{background:#fffaf0;color:#c05621}
+.explore-btn{display:block;text-align:center;padding:10px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;width:100%;margin-top:auto}
+.page-btn{padding:8px 14px;border:2px solid #e2e8f0;border-radius:8px;background:white;cursor:pointer;font-size:13px;font-weight:600;color:#4a5568;transition:.2s}
+.page-btn:hover,.page-btn.active{background:#667eea;color:white;border-color:#667eea}
+</style>
+
+<script src="/static/js/main.js"></script>
+<script>
+const token = getToken();
+if (!token) window.location.href = '/login';
+const s = getStudent();
+if (s) document.getElementById('avatarText').textContent = (s.full_name||'S').charAt(0).toUpperCase();
+
+let currentPage = 1;
+const perPage = 12;
+
+async function loadCareers(page=1) {
+  const domain  = document.getElementById('domainFilter').value;
+  const demand  = document.getElementById('demandFilter').value;
+  const exam    = document.getElementById('examFilter').value;
+  const search  = document.getElementById('searchInput').value.toLowerCase();
+
+  let url = `/careers?page=${page}&per_page=${perPage}`;
+  if (domain) url += `&domain=${encodeURIComponent(domain)}`;
+  if (demand) url += `&demand_level=${encodeURIComponent(demand)}`;
+  if (exam)   url += `&exam_required=${exam}`;
+
+  document.getElementById('cardsGrid').innerHTML = '<div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading careers...</div>';
+
+  const res  = await fetch(url);
+  const data = await res.json();
+  let items  = data.data || [];
+
+  if (search) items = items.filter(c =>
+    c.career_title.toLowerCase().includes(search) ||
+    (c.domain||'').toLowerCase().includes(search)
+  );
+
+  document.getElementById('totalCount').textContent = `📊 ${data.total.toLocaleString('en-IN')} Careers`;
+
+  if (!items.length) {
+    document.getElementById('cardsGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:#a0aec0"><div style="font-size:48px;margin-bottom:12px">😕</div><div>Koi career nahi mila. Filters reset karo.</div></div>';
+    return;
+  }
+
+  const demandClass = {
+    'Very High': 'demand-vh',
+    'High':      'demand-h',
+    'Medium':    'demand-m',
+  };
+
+  document.getElementById('cardsGrid').innerHTML = items.map(c => `
+    <div class="career-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <span style="font-size:12px;color:#a0aec0">${c.domain}</span>
+        <span class="demand-badge ${demandClass[c.demand_level]||'demand-m'}">${c.demand_level}</span>
+      </div>
+      <div style="font-size:17px;font-weight:700;color:#1a1a2e;margin-bottom:4px">${c.career_title}</div>
+      <div style="font-size:12px;color:#a0aec0;margin-bottom:10px">📈 Growth: +${c.growth_rate_pct}% per year</div>
+      <div class="salary-row">
+        <div class="salary-box"><div class="s-val">₹${c.avg_salary_lpa_entry} LPA</div><div class="s-lbl">Entry Level</div></div>
+        <div class="salary-box"><div class="s-val">₹${c.avg_salary_lpa_senior} LPA</div><div class="s-lbl">Senior Level</div></div>
+      </div>
+      <div style="margin-bottom:14px">
+        ${c.exam_required ? `<span class="ctag ctag-orange">📝 Exam: ${c.exam_name||'Required'}</span>` : '<span class="ctag ctag-blue">✅ No Entrance Exam</span>'}
+      </div>
+      <button class="explore-btn" onclick="exploreCareer('${c.career_title}')">Explore Career →</button>
+    </div>`).join('');
+
+  renderPagination(data.total, page);
+}
+
+function renderPagination(total, current) {
+  const pages = Math.ceil(total / perPage);
+  if (pages <= 1) { document.getElementById('pagination').innerHTML = ''; return; }
+  let html = '';
+  if (current > 1) html += `<button class="page-btn" onclick="goPage(${current-1})">← Prev</button>`;
+  for (let i = Math.max(1,current-2); i <= Math.min(pages,current+2); i++)
+    html += `<button class="page-btn ${i===current?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  if (current < pages) html += `<button class="page-btn" onclick="goPage(${current+1})">Next →</button>`;
+  document.getElementById('pagination').innerHTML = html;
+}
+
+function goPage(p) { currentPage=p; loadCareers(p); window.scrollTo(0,0); }
+function filterChange() { loadCareers(1); }
+function resetFilters() {
+  ['domainFilter','demandFilter','examFilter'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('searchInput').value='';
+  loadCareers(1);
+}
+function exploreCareer(title) {
+  alert(`🚀 Career: ${title}\n\nDetailed career roadmap, required skills, certifications aur course recommendations coming soon!\n\nAI Chatbot se pooch sakte ho!`);
+}
+
+loadCareers(1);
+</script>
+</body>
+</html>

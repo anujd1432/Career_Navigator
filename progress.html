@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Progress Dashboard — Career Navigator</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-brand"><span>🎯</span> Career Navigator</div>
+  <div class="nav-links">
+    <a href="/dashboard">🏠 Home</a>
+    <a href="/internships-page">💼 Internships</a>
+    <a href="/careers-page">🚀 Careers</a>
+    <a href="/scholarships-page">🎓 Scholarships</a>
+    <a href="/assessment">🎯 Assessment</a>
+    <a href="/mock-interview">🎤 Interview</a>
+    <a href="/resume">📄 Resume</a>
+    <a href="/chatbot">🤖 AI Chat</a>
+  </div>
+  <div class="nav-user">
+    <div class="avatar" id="avatarText">S</div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<div class="dashboard">
+  <div class="page-title">📊 Progress Dashboard</div>
+  <div class="page-sub">Aapki career journey ka complete analytics!</div>
+
+  <!-- Top Stats -->
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:28px">
+    <div class="stat-card blue">
+      <span class="stat-icon">🎯</span>
+      <div class="stat-number" id="s1">0%</div>
+      <div class="stat-label">Career Readiness</div>
+    </div>
+    <div class="stat-card green">
+      <span class="stat-icon">📚</span>
+      <div class="stat-number" id="s2">0</div>
+      <div class="stat-label">Courses Done</div>
+    </div>
+    <div class="stat-card orange">
+      <span class="stat-icon">🎤</span>
+      <div class="stat-number" id="s3">0</div>
+      <div class="stat-label">Mock Interviews</div>
+    </div>
+    <div class="stat-card purple">
+      <span class="stat-icon">📄</span>
+      <div class="stat-number" id="s4">0%</div>
+      <div class="stat-label">Resume Score</div>
+    </div>
+    <div class="stat-card blue">
+      <span class="stat-icon">🔥</span>
+      <div class="stat-number" id="s5">0</div>
+      <div class="stat-label">Day Streak</div>
+    </div>
+  </div>
+
+  <!-- Main Grid -->
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:24px;margin-bottom:24px">
+
+    <!-- Left -->
+    <div>
+      <!-- Career Readiness Breakdown -->
+      <div class="card" style="margin-bottom:20px">
+        <div style="font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:20px">🎯 Career Readiness Breakdown</div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="readiness-row">
+            <div class="r-label">📝 Assessment Completed</div>
+            <div style="flex:1;margin:0 14px"><div class="progress-bar"><div class="progress-fill" id="pr1" style="width:0%"></div></div></div>
+            <div class="r-score" id="ps1">0%</div>
+          </div>
+          <div class="readiness-row">
+            <div class="r-label">⚡ Skills Gained</div>
+            <div style="flex:1;margin:0 14px"><div class="progress-bar"><div class="progress-fill" id="pr2" style="width:0%;background:linear-gradient(90deg,#48bb78,#38a169)"></div></div></div>
+            <div class="r-score" id="ps2">0%</div>
+          </div>
+          <div class="readiness-row">
+            <div class="r-label">📄 Resume Ready</div>
+            <div style="flex:1;margin:0 14px"><div class="progress-bar"><div class="progress-fill" id="pr3" style="width:0%;background:linear-gradient(90deg,#ed8936,#dd6b20)"></div></div></div>
+            <div class="r-score" id="ps3">0%</div>
+          </div>
+          <div class="readiness-row">
+            <div class="r-label">🎤 Interview Prep</div>
+            <div style="flex:1;margin:0 14px"><div class="progress-bar"><div class="progress-fill" id="pr4" style="width:0%;background:linear-gradient(90deg,#9f7aea,#805ad5)"></div></div></div>
+            <div class="r-score" id="ps4">0%</div>
+          </div>
+          <div class="readiness-row">
+            <div class="r-label">💼 Internship Applied</div>
+            <div style="flex:1;margin:0 14px"><div class="progress-bar"><div class="progress-fill" id="pr5" style="width:0%;background:linear-gradient(90deg,#4299e1,#3182ce)"></div></div></div>
+            <div class="r-score" id="ps5">0%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skills Radar Chart -->
+      <div class="card" style="margin-bottom:20px">
+        <div style="font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:16px">⚡ Skills Analysis</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center">
+          <canvas id="skillsChart" width="250" height="250"></canvas>
+          <div id="skillsList" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+      </div>
+
+      <!-- Activity Timeline -->
+      <div class="card">
+        <div style="font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:16px">📅 Recent Activity</div>
+        <div id="activityTimeline"></div>
+      </div>
+    </div>
+
+    <!-- Right -->
+    <div>
+      <!-- Monthly Goal -->
+      <div class="card" style="margin-bottom:20px">
+        <div style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:16px">🎯 Monthly Goal</div>
+        <div style="text-align:center;margin-bottom:16px">
+          <canvas id="goalChart" width="160" height="160" style="margin:0 auto"></canvas>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="goal-item" id="g1">📝 Assessment <span>❌</span></div>
+          <div class="goal-item" id="g2">📄 Resume Upload <span>❌</span></div>
+          <div class="goal-item" id="g3">🎤 1 Mock Interview <span>❌</span></div>
+          <div class="goal-item" id="g4">💼 Apply 2 Internships <span>❌</span></div>
+          <div class="goal-item" id="g5">🎓 1 Scholarship Apply <span>❌</span></div>
+        </div>
+      </div>
+
+      <!-- Platform Stats -->
+      <div class="card" style="margin-bottom:20px">
+        <div style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:14px">🌐 Platform Stats</div>
+        <div style="display:flex;flex-direction:column;gap:10px" id="platformStats">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+      </div>
+
+      <!-- Next Steps -->
+      <div class="card">
+        <div style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:14px">🚀 Next Steps</div>
+        <div id="nextSteps" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interview History Chart -->
+  <div class="card" style="margin-bottom:24px">
+    <div style="font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:16px">🎤 Interview Performance History</div>
+    <div id="noInterviewHistory" style="text-align:center;padding:30px;color:#a0aec0;display:none">
+      <div style="font-size:36px;margin-bottom:8px">🎤</div>
+      <div>Abhi tak koi interview nahi diya. <a href="/mock-interview" style="color:#667eea">Start karo!</a></div>
+    </div>
+    <canvas id="interviewChart" height="80"></canvas>
+  </div>
+
+  <!-- Platform Analytics -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px">
+    <div class="card">
+      <div style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:16px">📊 Career Trends (India 2024)</div>
+      <canvas id="trendChart" height="200"></canvas>
+    </div>
+    <div class="card">
+      <div style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:16px">💰 Salary Insights by Domain</div>
+      <canvas id="salaryChart" height="200"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<style>
+.stat-card{background:white;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06);border-left:4px solid;position:relative}
+.stat-card.blue{border-color:#667eea}
+.stat-card.green{border-color:#48bb78}
+.stat-card.orange{border-color:#ed8936}
+.stat-card.purple{border-color:#9f7aea}
+.stat-icon{position:absolute;right:16px;top:16px;font-size:24px}
+.stat-number{font-size:26px;font-weight:700;color:#1a1a2e}
+.stat-label{font-size:12px;color:#a0aec0;margin-top:4px}
+.readiness-row{display:flex;align-items:center;gap:8px}
+.r-label{font-size:13px;color:#4a5568;width:160px;flex-shrink:0}
+.r-score{font-size:13px;font-weight:700;color:#667eea;width:36px;text-align:right}
+.goal-item{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#4a5568;padding:8px 10px;background:#f7fafc;border-radius:8px}
+.goal-item.done{background:#f0fff4;color:#276749}
+.activity-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #f7fafc}
+.activity-item:last-child{border-bottom:none}
+.activity-dot{width:10px;height:10px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.activity-text{font-size:13px;color:#4a5568;line-height:1.5}
+.activity-time{font-size:11px;color:#a0aec0;margin-top:2px}
+.pstat-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:8px 0;border-bottom:1px solid #f7fafc;color:#4a5568}
+.pstat-val{font-weight:700;color:#667eea}
+.next-step{display:flex;gap:10px;align-items:flex-start;padding:10px;background:#f7fafc;border-radius:10px;font-size:13px;color:#4a5568;text-decoration:none;transition:.2s}
+.next-step:hover{background:#f0f4ff;color:#667eea}
+</style>
+
+<script src="/static/js/main.js"></script>
+<script>
+const token = getToken();
+if (!token) window.location.href = '/login';
+const s = getStudent();
+if (s) document.getElementById('avatarText').textContent = (s.full_name||'S').charAt(0).toUpperCase();
+
+// Load interview history from localStorage
+const interviewHistory = JSON.parse(localStorage.getItem('interview_history') || '[]');
+const assessmentDone   = !!localStorage.getItem('assessment_result');
+
+// Calculate progress
+const interviewCount  = interviewHistory.length;
+const avgScore        = interviewCount ? Math.round(interviewHistory.reduce((a,b)=>a+b.score,0)/interviewCount) : 0;
+const assessmentScore = assessmentDone ? 100 : 0;
+const skillsScore     = Math.min(100, (s?.current_cgpa || 0) * 10);
+const resumeScore     = 0; // Will be updated if resume built
+const interviewScore  = Math.min(100, interviewCount * 20);
+const internshipScore = 0;
+
+const readiness = Math.round((assessmentScore*0.25 + skillsScore*0.20 + resumeScore*0.20 + interviewScore*0.20 + internshipScore*0.15));
+
+// Update top stats
+document.getElementById('s1').textContent = readiness + '%';
+document.getElementById('s2').textContent = Math.floor(Math.random()*5);
+document.getElementById('s3').textContent = interviewCount;
+document.getElementById('s4').textContent = resumeScore + '%';
+document.getElementById('s5').textContent = Math.floor(Math.random()*15) + 1;
+
+// Progress bars
+function setProgress(id, scoreId, value) {
+  document.getElementById(id).style.width  = value + '%';
+  document.getElementById(scoreId).textContent = value + '%';
+}
+setProgress('pr1','ps1', assessmentScore);
+setProgress('pr2','ps2', Math.min(100, Math.round(skillsScore)));
+setProgress('pr3','ps3', resumeScore);
+setProgress('pr4','ps4', interviewScore);
+setProgress('pr5','ps5', internshipScore);
+
+// Monthly goals
+function setGoal(id, done) {
+  const el = document.getElementById(id);
+  if (done) { el.classList.add('done'); el.querySelector('span').textContent = '✅'; }
+}
+setGoal('g1', assessmentDone);
+setGoal('g2', false);
+setGoal('g3', interviewCount >= 1);
+setGoal('g4', false);
+setGoal('g5', false);
+
+const goalsDone = [assessmentDone, false, interviewCount>=1, false, false].filter(Boolean).length;
+
+// Monthly goal doughnut chart
+const goalCtx = document.getElementById('goalChart').getContext('2d');
+new Chart(goalCtx, {
+  type: 'doughnut',
+  data: {
+    datasets: [{
+      data: [goalsDone, 5 - goalsDone],
+      backgroundColor: ['#667eea','#f0f4ff'],
+      borderWidth: 0,
+    }]
+  },
+  options: {
+    cutout: '75%',
+    plugins: {
+      legend: { display: false },
+      tooltip: { enabled: false }
+    }
+  },
+  plugins: [{
+    id: 'centerText',
+    beforeDraw(chart) {
+      const {ctx, chartArea:{width,height}} = chart;
+      ctx.save();
+      ctx.font = 'bold 24px Segoe UI';
+      ctx.fillStyle = '#667eea';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${goalsDone}/5`, width/2, height/2 + 8);
+      ctx.restore();
+    }
+  }]
+});
+
+// Skills radar chart
+const skillsCtx = document.getElementById('skillsChart').getContext('2d');
+const userSkills = s?.current_cgpa ? [
+  Math.min(100, s.current_cgpa * 10),
+  assessmentDone ? 80 : 20,
+  interviewCount * 20,
+  resumeScore || 10,
+  30, 40
+] : [20, 20, 20, 10, 30, 40];
+
+new Chart(skillsCtx, {
+  type: 'radar',
+  data: {
+    labels: ['Academic', 'Assessment', 'Interview', 'Resume', 'Internship', 'Networking'],
+    datasets: [{
+      label: 'Your Skills',
+      data: userSkills,
+      backgroundColor: 'rgba(102,126,234,0.15)',
+      borderColor: '#667eea',
+      borderWidth: 2,
+      pointBackgroundColor: '#667eea',
+      pointRadius: 4,
+    }]
+  },
+  options: {
+    scales: { r: { min: 0, max: 100, ticks: { display: false }, grid: { color: '#f0f4ff' }, pointLabels: { font: { size: 11 } } } },
+    plugins: { legend: { display: false } }
+  }
+});
+
+// Skills list
+const skillLabels = ['Academic', 'Assessment', 'Interview', 'Resume', 'Internship', 'Networking'];
+document.getElementById('skillsList').innerHTML = skillLabels.map((label, i) => {
+  const val = userSkills[i];
+  const color = val >= 70 ? '#48bb78' : val >= 40 ? '#ed8936' : '#e53e3e';
+  return `<div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#4a5568">
+    <span>${label}</span>
+    <span style="color:${color};font-weight:700">${val}%</span>
+  </div>`;
+}).join('');
+
+// Activity timeline
+const activities = [
+  { icon: '🟢', text: 'Career Navigator pe login kiya', time: 'Aaj' },
+  assessmentDone ? { icon: '🟣', text: 'Career Assessment complete kiya', time: 'Recent' } : null,
+  interviewCount > 0 ? { icon: '🔵', text: `${interviewCount} Mock Interview(s) complete kiya — Avg Score: ${avgScore}%`, time: 'Recent' } : null,
+  { icon: '🟡', text: 'Dashboard visit kiya', time: 'Aaj' },
+  { icon: '⚪', text: 'Profile setup kiya', time: 'Pehle' },
+].filter(Boolean);
+
+document.getElementById('activityTimeline').innerHTML = activities.map(a => `
+  <div class="activity-item">
+    <div class="activity-dot" style="background:${a.icon==='🟢'?'#48bb78':a.icon==='🟣'?'#9f7aea':a.icon==='🔵'?'#4299e1':a.icon==='🟡'?'#ed8936':'#a0aec0'}"></div>
+    <div>
+      <div class="activity-text">${a.text}</div>
+      <div class="activity-time">${a.time}</div>
+    </div>
+  </div>`).join('');
+
+// Interview history chart
+if (interviewHistory.length > 0) {
+  const intCtx = document.getElementById('interviewChart').getContext('2d');
+  new Chart(intCtx, {
+    type: 'line',
+    data: {
+      labels: interviewHistory.slice().reverse().map((h,i) => `Interview ${i+1}`),
+      datasets: [{
+        label: 'Score %',
+        data: interviewHistory.slice().reverse().map(h => h.score),
+        borderColor: '#667eea',
+        backgroundColor: 'rgba(102,126,234,0.1)',
+        borderWidth: 2,
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: '#667eea',
+        pointRadius: 5,
+      }]
+    },
+    options: {
+      scales: { y: { min: 0, max: 100, ticks: { callback: v => v+'%' } } },
+      plugins: { legend: { display: false } }
+    }
+  });
+} else {
+  document.getElementById('noInterviewHistory').style.display = 'block';
+  document.getElementById('interviewChart').style.display     = 'none';
+}
+
+// Platform stats
+async function loadPlatformStats() {
+  try {
+    const res = await fetch('/stats');
+    const d   = await res.json();
+    document.getElementById('platformStats').innerHTML = `
+      <div class="pstat-row"><span>👥 Total Students</span><span class="pstat-val">${(d.total_students||0).toLocaleString('en-IN')}</span></div>
+      <div class="pstat-row"><span>💼 Active Internships</span><span class="pstat-val">${(d.active_internships||0).toLocaleString('en-IN')}</span></div>
+      <div class="pstat-row"><span>🎓 Scholarships</span><span class="pstat-val">${(d.total_scholarships||0).toLocaleString('en-IN')}</span></div>
+      <div class="pstat-row"><span>🚀 Career Paths</span><span class="pstat-val">${(d.total_careers||0).toLocaleString('en-IN')}</span></div>
+      <div class="pstat-row"><span>⭐ First Gen Students</span><span class="pstat-val">${(d.first_gen_students||0).toLocaleString('en-IN')}</span></div>`;
+  } catch(e) {}
+}
+loadPlatformStats();
+
+// Next steps
+const steps = [];
+if (!assessmentDone) steps.push({icon:'🎯', text:'Career Assessment complete karo', link:'/assessment'});
+if (interviewCount === 0) steps.push({icon:'🎤', text:'Pehla Mock Interview do', link:'/mock-interview'});
+steps.push({icon:'💼', text:'Internships explore karo', link:'/internships-page'});
+steps.push({icon:'🎓', text:'Scholarship dhundho', link:'/scholarships-page'});
+steps.push({icon:'📄', text:'Resume banao', link:'/resume'});
+document.getElementById('nextSteps').innerHTML = steps.slice(0,4).map(st => `
+  <a href="${st.link}" class="next-step">
+    <span style="font-size:18px">${st.icon}</span>
+    <span>${st.text}</span>
+    <span style="margin-left:auto;color:#a0aec0">→</span>
+  </a>`).join('');
+
+// Career trends chart
+const trendCtx = document.getElementById('trendChart').getContext('2d');
+new Chart(trendCtx, {
+  type: 'bar',
+  data: {
+    labels: ['IT/Software', 'Data Science', 'AI/ML', 'Govt Jobs', 'Finance', 'Healthcare'],
+    datasets: [{
+      label: 'Job Growth %',
+      data: [22, 35, 45, 5, 18, 20],
+      backgroundColor: ['#667eea','#48bb78','#9f7aea','#ed8936','#4299e1','#e53e3e'],
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: { y: { ticks: { callback: v => v+'%' } } }
+  }
+});
+
+// Salary chart
+const salaryCtx = document.getElementById('salaryChart').getContext('2d');
+new Chart(salaryCtx, {
+  type: 'horizontalBar',
+  data: {
+    labels: ['AI/ML', 'Cloud', 'Data Science', 'Product Mgmt', 'Finance', 'Software Dev'],
+    datasets: [{
+      label: 'Avg Salary (LPA)',
+      data: [18, 16, 14, 20, 12, 10],
+      backgroundColor: 'rgba(102,126,234,0.7)',
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    plugins: { legend: { display: false } },
+    scales: { x: { ticks: { callback: v => '₹'+v+' L' } } }
+  }
+});
+</script>
+</body>
+</html>

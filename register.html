@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register — Career Navigator</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body class="auth-body">
+
+<div class="auth-container">
+  <!-- Left Panel -->
+  <div class="auth-left">
+    <div class="brand">
+      <div class="brand-icon">🎯</div>
+      <h1>Career Navigator</h1>
+      <p>First-Gen Students ke liye<br/>AI-Powered Career Guidance</p>
+    </div>
+    <div class="features">
+      <div class="feature-item">🚀 Free Career Assessment</div>
+      <div class="feature-item">📚 Personalized Roadmap</div>
+      <div class="feature-item">💰 Scholarship Alerts</div>
+      <div class="feature-item">🤝 Mentor Connect</div>
+    </div>
+  </div>
+
+  <!-- Right Panel — Register Form -->
+  <div class="auth-right">
+    <div class="auth-card">
+      <h2>Create Account 🎓</h2>
+      <p class="auth-sub">Apna career journey shuru karo</p>
+
+      <div id="error-msg" class="alert alert-error" style="display:none"></div>
+      <div id="success-msg" class="alert alert-success" style="display:none"></div>
+
+      <!-- Step Indicator -->
+      <div class="steps">
+        <div class="step active" id="step1-dot">1</div>
+        <div class="step-line"></div>
+        <div class="step" id="step2-dot">2</div>
+        <div class="step-line"></div>
+        <div class="step" id="step3-dot">3</div>
+      </div>
+
+      <!-- Step 1: Basic Info -->
+      <div id="step1" class="step-content">
+        <h3>Basic Information</h3>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" id="first_name" placeholder="Rahul" required/>
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" id="last_name" placeholder="Sharma" required/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="email" placeholder="rahul@email.com" required/>
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" id="phone" placeholder="9876543210" maxlength="10" required/>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <div class="input-eye">
+            <input type="password" id="password" placeholder="Min 8 characters" required/>
+            <span onclick="togglePass('password')" class="eye-btn">👁</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Confirm Password</label>
+          <div class="input-eye">
+            <input type="password" id="confirm_password" placeholder="••••••••" required/>
+            <span onclick="togglePass('confirm_password')" class="eye-btn">👁</span>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="nextStep(2)">Next →</button>
+      </div>
+
+      <!-- Step 2: Academic Info -->
+      <div id="step2" class="step-content" style="display:none">
+        <h3>Academic Details</h3>
+        <div class="form-group">
+          <label>12th Stream</label>
+          <select id="stream">
+            <option value="">Select Stream</option>
+            <option>Science (PCM)</option>
+            <option>Science (PCB)</option>
+            <option>Commerce</option>
+            <option>Arts</option>
+            <option>Vocational</option>
+          </select>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>12th Percentage</label>
+            <input type="number" id="twelfth_pct" placeholder="75.5" min="0" max="100" step="0.1"/>
+          </div>
+          <div class="form-group">
+            <label>Passing Year</label>
+            <input type="number" id="twelfth_year" placeholder="2023" min="2010" max="2025"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Current Degree</label>
+          <select id="degree">
+            <option value="">Select Degree</option>
+            <option>B.Tech</option>
+            <option>B.Sc</option>
+            <option>BCA</option>
+            <option>BBA</option>
+            <option>B.Com</option>
+            <option>BA</option>
+            <option>MBBS</option>
+            <option>B.Pharm</option>
+            <option>Diploma</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Current CGPA</label>
+          <input type="number" id="cgpa" placeholder="7.5" min="0" max="10" step="0.1"/>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="category">
+            <option value="">Select Category</option>
+            <option>General</option>
+            <option>OBC</option>
+            <option>SC</option>
+            <option>ST</option>
+            <option>EWS</option>
+          </select>
+        </div>
+        <div class="btn-row">
+          <button class="btn-secondary" onclick="nextStep(1)">← Back</button>
+          <button class="btn-primary" onclick="nextStep(3)">Next →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Personal Info -->
+      <div id="step3" class="step-content" style="display:none">
+        <h3>Personal Details</h3>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>City</label>
+            <input type="text" id="city" placeholder="Mumbai"/>
+          </div>
+          <div class="form-group">
+            <label>State</label>
+            <input type="text" id="state" placeholder="Maharashtra"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Annual Family Income</label>
+          <select id="income">
+            <option value="">Select Income</option>
+            <option>Below 1 LPA</option>
+            <option>1-3 LPA</option>
+            <option>3-5 LPA</option>
+            <option>5-10 LPA</option>
+            <option>10+ LPA</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Are you First Generation College Student?</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="first_gen" value="true"/> Haan, main pehla hoon college jaane wala
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="first_gen" value="false"/> Nahi
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="agree" required/>
+            Main <a href="#">Terms & Conditions</a> se agree karta/karti hoon
+          </label>
+        </div>
+        <div class="btn-row">
+          <button class="btn-secondary" onclick="nextStep(2)">← Back</button>
+          <button class="btn-primary" id="registerBtn" onclick="submitRegister()">
+            Register Karo 🚀
+          </button>
+        </div>
+      </div>
+
+      <div class="divider"><span>ya</span></div>
+      <p class="auth-footer">
+        Already account hai? <a href="/login">Login karo</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script src="/static/js/main.js"></script>
+<script>
+function nextStep(step) {
+  if (step === 2) {
+    const fn = document.getElementById('first_name').value;
+    const ln = document.getElementById('last_name').value;
+    const em = document.getElementById('email').value;
+    const ph = document.getElementById('phone').value;
+    const pw = document.getElementById('password').value;
+    const cp = document.getElementById('confirm_password').value;
+    if (!fn || !ln || !em || !ph || !pw) return showError('Sab fields bharo!');
+    if (pw !== cp) return showError('Passwords match nahi kar rahe!');
+    if (pw.length < 8) return showError('Password kam se kam 8 characters ka hona chahiye!');
+  }
+  if (step === 3) {
+    const st = document.getElementById('stream').value;
+    if (!st) return showError('Stream select karo!');
+  }
+  hideMessages();
+  document.querySelectorAll('.step-content').forEach(s => s.style.display = 'none');
+  document.getElementById('step' + step).style.display = 'block';
+  document.querySelectorAll('.step').forEach((s, i) => {
+    s.classList.toggle('active', i < step);
+  });
+}
+
+async function submitRegister() {
+  const agree = document.getElementById('agree').checked;
+  if (!agree) return showError('Terms & Conditions accept karo!');
+  const first_gen = document.querySelector('input[name="first_gen"]:checked');
+  if (!first_gen) return showError('First gen college student wala option select karo!');
+  const btn = document.getElementById('registerBtn');
+  btn.textContent = 'Registering...'; btn.disabled = true;
+  hideMessages();
+  const payload = {
+    full_name: document.getElementById('first_name').value + ' ' + document.getElementById('last_name').value,
+    email: document.getElementById('email').value,
+    phone: document.getElementById('phone').value,
+    password: document.getElementById('password').value,
+    twelfth_stream: document.getElementById('stream').value,
+    twelfth_percentage: parseFloat(document.getElementById('twelfth_pct').value) || null,
+    twelfth_year: parseInt(document.getElementById('twelfth_year').value) || null,
+    current_degree: document.getElementById('degree').value,
+    current_cgpa: parseFloat(document.getElementById('cgpa').value) || null,
+    category: document.getElementById('category').value,
+    city: document.getElementById('city').value,
+    state: document.getElementById('state').value,
+    annual_family_income: document.getElementById('income').value,
+    is_first_gen_college: first_gen.value === 'true',
+  };
+  try {
+    const res = await fetch('/api/auth/register', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (res.ok) {
+      localStorage.setItem('pending_email', payload.email);
+      if (data.debug_otp) localStorage.setItem('debug_otp', data.debug_otp);
+      showSuccess('OTP bheja gaya! Email check karo...');
+      setTimeout(() => window.location.href = '/verify-otp', 1500);
+    } else {
+      showError(data.detail || 'Registration failed!');
+      btn.textContent = 'Register Karo 🚀'; btn.disabled = false;
+    }
+  } catch(err) {
+    showError('Server error!');
+    btn.textContent = 'Register Karo 🚀'; btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>

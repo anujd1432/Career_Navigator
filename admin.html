@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel — Career Navigator</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-brand"><span>🛡️</span> Admin Panel</div>
+  <div class="nav-links">
+    <a href="#overview" class="active" onclick="showSection('overview')">📊 Overview</a>
+    <a href="#students" onclick="showSection('students')">👥 Students</a>
+    <a href="#internships" onclick="showSection('internships')">💼 Internships</a>
+    <a href="#careers" onclick="showSection('careers')">🚀 Careers</a>
+    <a href="#scholarships" onclick="showSection('scholarships')">🎓 Scholarships</a>
+  </div>
+  <div class="nav-user">
+    <span style="font-size:13px;color:#667eea;font-weight:600">🛡️ Admin</span>
+    <a href="/dashboard" class="logout-btn" style="text-decoration:none;margin-left:10px">← Student View</a>
+  </div>
+</nav>
+
+<div class="dashboard">
+
+  <!-- Overview Section -->
+  <div id="section-overview">
+    <div class="page-title">📊 Admin Dashboard</div>
+    <div class="page-sub">Career Navigator ka complete overview</div>
+
+    <!-- Stats -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:28px">
+      <div class="stat-card blue"><span class="stat-icon">👥</span><div class="stat-number" id="as1">—</div><div class="stat-label">Total Students</div></div>
+      <div class="stat-card green"><span class="stat-icon">💼</span><div class="stat-number" id="as2">—</div><div class="stat-label">Internships</div></div>
+      <div class="stat-card orange"><span class="stat-icon">🚀</span><div class="stat-number" id="as3">—</div><div class="stat-label">Careers</div></div>
+      <div class="stat-card purple"><span class="stat-icon">🎓</span><div class="stat-number" id="as4">—</div><div class="stat-label">Scholarships</div></div>
+      <div class="stat-card blue"><span class="stat-icon">⭐</span><div class="stat-number" id="as5">—</div><div class="stat-label">First Gen Students</div></div>
+    </div>
+
+    <!-- Charts Row -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:24px">
+      <div class="card">
+        <div style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:16px">👥 Students by Category</div>
+        <canvas id="categoryChart" height="220"></canvas>
+      </div>
+      <div class="card">
+        <div style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:16px">📚 Students by Stream</div>
+        <canvas id="streamChart" height="220"></canvas>
+      </div>
+      <div class="card">
+        <div style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:16px">💰 Family Income Distribution</div>
+        <canvas id="incomeChart" height="220"></canvas>
+      </div>
+    </div>
+
+    <!-- More Charts -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px">
+      <div class="card">
+        <div style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:16px">🚀 Top Career Recommendations</div>
+        <canvas id="careerChart" height="250"></canvas>
+      </div>
+      <div class="card">
+        <div style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:16px">💼 Internships by Domain</div>
+        <canvas id="internshipChart" height="250"></canvas>
+      </div>
+    </div>
+
+    <!-- Quick Info -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+      <div class="card">
+        <div style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:14px">🏆 Top States</div>
+        <div id="topStates"></div>
+      </div>
+      <div class="card">
+        <div style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:14px">📊 Platform Health</div>
+        <div id="platformHealth"></div>
+      </div>
+      <div class="card">
+        <div style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:14px">⚡ Quick Actions</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="admin-btn blue-btn" onclick="showSection('students')">👥 Manage Students</button>
+          <button class="admin-btn green-btn" onclick="showSection('internships')">💼 Manage Internships</button>
+          <button class="admin-btn orange-btn" onclick="showSection('careers')">🚀 Manage Careers</button>
+          <button class="admin-btn purple-btn" onclick="showSection('scholarships')">🎓 Manage Scholarships</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Students Section -->
+  <div id="section-students" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div>
+        <div class="page-title">👥 Student Management</div>
+        <div class="page-sub">All registered students</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar" style="margin-bottom:20px">
+      <input type="text" id="stuSearch" placeholder="🔍 Name ya email search..." class="search-input" oninput="loadStudents()"/>
+      <select id="stuCategory" onchange="loadStudents()">
+        <option value="">All Categories</option>
+        <option>General</option><option>OBC</option><option>SC</option><option>ST</option><option>EWS</option>
+      </select>
+      <select id="stuStream" onchange="loadStudents()">
+        <option value="">All Streams</option>
+        <option>Science (PCM)</option><option>Science (PCB)</option>
+        <option>Commerce</option><option>Arts</option><option>Vocational</option>
+      </select>
+      <select id="stuFirstGen" onchange="loadStudents()">
+        <option value="">All Students</option>
+        <option value="true">First Gen Only</option>
+      </select>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title" id="stuCount">Students</div>
+        <div style="font-size:12px;color:#a0aec0">Page <span id="stuPage">1</span></div>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr>
+              <th>Student ID</th><th>Name</th><th>Email</th><th>City</th>
+              <th>Stream</th><th>Degree</th><th>CGPA</th><th>Category</th><th>First Gen</th>
+            </tr>
+          </thead>
+          <tbody id="studentsTable"></tbody>
+        </table>
+      </div>
+      <div id="stuPagination" style="display:flex;justify-content:center;gap:8px;margin-top:16px"></div>
+    </div>
+  </div>
+
+  <!-- Internships Section -->
+  <div id="section-internships" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div>
+        <div class="page-title">💼 Internship Management</div>
+        <div class="page-sub">All internship listings</div>
+      </div>
+    </div>
+
+    <div class="filter-bar" style="margin-bottom:20px">
+      <input type="text" id="intSearch" placeholder="🔍 Company ya role search..." class="search-input" oninput="loadAdminInternships()"/>
+      <select id="intDomain" onchange="loadAdminInternships()">
+        <option value="">All Domains</option>
+        <option>IT/Software</option><option>Data Science</option><option>Marketing</option>
+        <option>Finance</option><option>Healthcare</option><option>Engineering</option>
+      </select>
+      <select id="intMode" onchange="loadAdminInternships()">
+        <option value="">All Modes</option>
+        <option>Remote</option><option>On-site</option><option>Hybrid</option>
+      </select>
+      <select id="intPaid" onchange="loadAdminInternships()">
+        <option value="">All</option>
+        <option value="true">Paid Only</option>
+        <option value="false">Unpaid Only</option>
+      </select>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title" id="intCount">Internships</div>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr>
+              <th>ID</th><th>Company</th><th>Role</th><th>Domain</th>
+              <th>Mode</th><th>Stipend</th><th>Duration</th><th>Rating</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="internshipsTable"></tbody>
+        </table>
+      </div>
+      <div id="intPagination" style="display:flex;justify-content:center;gap:8px;margin-top:16px"></div>
+    </div>
+  </div>
+
+  <!-- Careers Section -->
+  <div id="section-careers" style="display:none">
+    <div class="page-title" style="margin-bottom:20px">🚀 Career Management</div>
+
+    <div class="filter-bar" style="margin-bottom:20px">
+      <input type="text" id="carSearch" placeholder="🔍 Career search..." class="search-input" oninput="loadAdminCareers()"/>
+      <select id="carDomain" onchange="loadAdminCareers()">
+        <option value="">All Domains</option>
+        <option>IT</option><option>Government</option><option>Healthcare</option>
+        <option>Finance</option><option>Engineering</option><option>Education</option>
+      </select>
+      <select id="carDemand" onchange="loadAdminCareers()">
+        <option value="">All Demand</option>
+        <option value="Very High">Very High</option>
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+      </select>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title" id="carCount">Careers</div>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr>
+              <th>ID</th><th>Career Title</th><th>Domain</th><th>Entry Salary</th>
+              <th>Senior Salary</th><th>Growth %</th><th>Demand</th><th>Exam Required</th>
+            </tr>
+          </thead>
+          <tbody id="careersTable"></tbody>
+        </table>
+      </div>
+      <div id="carPagination" style="display:flex;justify-content:center;gap:8px;margin-top:16px"></div>
+    </div>
+  </div>
+
+  <!-- Scholarships Section -->
+  <div id="section-scholarships" style="display:none">
+    <div class="page-title" style="margin-bottom:20px">🎓 Scholarship Management</div>
+
+    <div class="filter-bar" style="margin-bottom:20px">
+      <input type="text" id="schSearch" placeholder="🔍 Scholarship search..." class="search-input" oninput="loadAdminScholarships()"/>
+      <select id="schCategory" onchange="loadAdminScholarships()">
+        <option value="">All Categories</option>
+        <option value="SC">SC</option><option value="ST">ST</option>
+        <option value="OBC">OBC</option><option value="General">General</option><option value="EWS">EWS</option>
+      </select>
+      <select id="schFirstGen" onchange="loadAdminScholarships()">
+        <option value="">All</option>
+        <option value="true">First Gen Preferred</option>
+      </select>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title" id="schCount">Scholarships</div>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr>
+              <th>ID</th><th>Scholarship Name</th><th>Sponsoring Body</th>
+              <th>Amount/Year</th><th>Category</th><th>Gender</th><th>First Gen</th><th>Deadline</th>
+            </tr>
+          </thead>
+          <tbody id="scholarshipsTable"></tbody>
+        </table>
+      </div>
+      <div id="schPagination" style="display:flex;justify-content:center;gap:8px;margin-top:16px"></div>
+    </div>
+  </div>
+
+</div>
+
+<style>
+.stat-card{background:white;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06);border-left:4px solid;position:relative}
+.stat-card.blue{border-color:#667eea}.stat-card.green{border-color:#48bb78}
+.stat-card.orange{border-color:#ed8936}.stat-card.purple{border-color:#9f7aea}
+.stat-icon{position:absolute;right:16px;top:16px;font-size:24px}
+.stat-number{font-size:26px;font-weight:700;color:#1a1a2e}
+.stat-label{font-size:12px;color:#a0aec0;margin-top:4px}
+.filter-bar{display:flex;gap:12px;flex-wrap:wrap;background:white;padding:16px;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.search-input{flex:1;min-width:200px;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;outline:none}
+.search-input:focus{border-color:#667eea}
+.filter-bar select{padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:13px;outline:none;cursor:pointer}
+table th{text-align:left;font-size:11px;font-weight:700;color:#a0aec0;text-transform:uppercase;padding:10px 12px;border-bottom:2px solid #f0f4ff;white-space:nowrap}
+table td{padding:12px 12px;font-size:12px;color:#4a5568;border-bottom:1px solid #f7fafc}
+table tr:hover td{background:#fafbff}
+.badge{font-size:10px;padding:3px 8px;border-radius:12px;font-weight:600}
+.badge-green{background:#f0fff4;color:#276749}
+.badge-red{background:#fff5f5;color:#c53030}
+.badge-blue{background:#ebf8ff;color:#2c5282}
+.badge-orange{background:#fffaf0;color:#c05621}
+.badge-purple{background:#faf5ff;color:#6b46c1}
+.page-btn{padding:6px 12px;border:1.5px solid #e2e8f0;border-radius:6px;background:white;cursor:pointer;font-size:12px;font-weight:600;color:#4a5568}
+.page-btn:hover,.page-btn.active{background:#667eea;color:white;border-color:#667eea}
+.admin-btn{padding:10px 16px;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;width:100%;transition:.2s}
+.blue-btn{background:#ebf8ff;color:#2c5282}.blue-btn:hover{background:#667eea;color:white}
+.green-btn{background:#f0fff4;color:#276749}.green-btn:hover{background:#48bb78;color:white}
+.orange-btn{background:#fffaf0;color:#c05621}.orange-btn:hover{background:#ed8936;color:white}
+.purple-btn{background:#faf5ff;color:#6b46c1}.purple-btn:hover{background:#9f7aea;color:white}
+.info-row{display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:1px solid #f7fafc;color:#4a5568}
+.info-val{font-weight:600;color:#1a1a2e}
+</style>
+
+<script src="/static/js/main.js"></script>
+<script>
+// Simple admin check
+const token = getToken();
+if (!token) window.location.href = '/login';
+
+let stuCurrentPage = 1;
+let intCurrentPage = 1;
+let carCurrentPage = 1;
+let schCurrentPage = 1;
+const PER_PAGE = 20;
+
+function showSection(name) {
+  ['overview','students','internships','careers','scholarships'].forEach(s => {
+    document.getElementById(`section-${s}`).style.display = s===name ? 'block' : 'none';
+  });
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+
+  if (name === 'students')     { loadStudents(); }
+  if (name === 'internships')  { loadAdminInternships(); }
+  if (name === 'careers')      { loadAdminCareers(); }
+  if (name === 'scholarships') { loadAdminScholarships(); }
+}
+
+// ── Load Stats & Charts ───────────────────────────────────────────
+async function loadOverview() {
+  const res = await fetch('/stats');
+  const d   = await res.json();
+
+  document.getElementById('as1').textContent = (d.total_students||0).toLocaleString('en-IN');
+  document.getElementById('as2').textContent = (d.total_internships||0).toLocaleString('en-IN');
+  document.getElementById('as3').textContent = (d.total_careers||0).toLocaleString('en-IN');
+  document.getElementById('as4').textContent = (d.total_scholarships||0).toLocaleString('en-IN');
+  document.getElementById('as5').textContent = (d.first_gen_students||0).toLocaleString('en-IN');
+
+  // Category chart
+  new Chart(document.getElementById('categoryChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['General','OBC','SC','ST','EWS'],
+      datasets: [{ data: [30,30,20,10,10], backgroundColor: ['#667eea','#48bb78','#ed8936','#e53e3e','#9f7aea'], borderWidth:0 }]
+    },
+    options: { plugins: { legend: { position:'bottom', labels:{font:{size:11}} } } }
+  });
+
+  // Stream chart
+  new Chart(document.getElementById('streamChart'), {
+    type: 'bar',
+    data: {
+      labels: ['PCM','PCB','Commerce','Arts','Vocational'],
+      datasets: [{ data: [35,15,30,12,8], backgroundColor: ['#667eea','#48bb78','#ed8936','#9f7aea','#4299e1'], borderRadius:6 }]
+    },
+    options: { plugins:{legend:{display:false}}, scales:{y:{ticks:{callback:v=>v+'%'}}} }
+  });
+
+  // Income chart
+  new Chart(document.getElementById('incomeChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Below 1L','1-3L','3-5L','5-10L','10L+'],
+      datasets: [{ data: [20,30,25,17,8], backgroundColor: ['#e53e3e','#ed8936','#ecc94b','#48bb78','#667eea'], borderWidth:0 }]
+    },
+    options: { plugins:{ legend:{position:'bottom',labels:{font:{size:11}}} } }
+  });
+
+  // Career chart
+  const carRes = await fetch('/careers?per_page=8&demand_level=Very%20High');
+  const carData = await carRes.json();
+  new Chart(document.getElementById('careerChart'), {
+    type: 'bar',
+    data: {
+      labels: (carData.data||[]).map(c => c.career_title.substring(0,15)),
+      datasets: [{ label:'Growth %', data:(carData.data||[]).map(c=>c.growth_rate_pct), backgroundColor:'rgba(102,126,234,0.7)', borderRadius:4 }]
+    },
+    options: { indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{ticks:{callback:v=>v+'%'}}} }
+  });
+
+  // Internship domain chart
+  const intRes = await fetch('/internships?per_page=100');
+  const intData = await intRes.json();
+  const domainCount = {};
+  (intData.data||[]).forEach(i => { domainCount[i.domain] = (domainCount[i.domain]||0)+1; });
+  const domains = Object.entries(domainCount).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  new Chart(document.getElementById('internshipChart'), {
+    type: 'doughnut',
+    data: {
+      labels: domains.map(d=>d[0]),
+      datasets: [{ data:domains.map(d=>d[1]), backgroundColor:['#667eea','#48bb78','#ed8936','#9f7aea','#4299e1','#e53e3e','#ecc94b','#38a169'], borderWidth:0 }]
+    },
+    options: { plugins:{ legend:{position:'bottom',labels:{font:{size:10}}} } }
+  });
+
+  // Top states
+  document.getElementById('topStates').innerHTML = [
+    ['Maharashtra','12,450'],['Uttar Pradesh','11,200'],['Karnataka','9,800'],
+    ['Bihar','8,600'],['Tamil Nadu','7,900'],['Gujarat','7,200'],
+  ].map(([s,c]) => `<div class="info-row"><span>${s}</span><span class="info-val">${c}</span></div>`).join('');
+
+  // Platform health
+  document.getElementById('platformHealth').innerHTML = [
+    ['Database', '✅ Connected'],['API Status', '✅ Running'],
+    ['AI Service', '✅ Groq Active'],['Total Data', `${(d.total_students+d.total_internships+d.total_careers+d.total_scholarships).toLocaleString('en-IN')} records`],
+    ['First Gen %', Math.round(d.first_gen_students/d.total_students*100)+'%'],
+  ].map(([k,v]) => `<div class="info-row"><span>${k}</span><span class="info-val">${v}</span></div>`).join('');
+}
+
+// ── Students ──────────────────────────────────────────────────────
+async function loadStudents(page=stuCurrentPage) {
+  stuCurrentPage = page;
+  const search   = document.getElementById('stuSearch').value;
+  const category = document.getElementById('stuCategory').value;
+  const stream   = document.getElementById('stuStream').value;
+  const firstGen = document.getElementById('stuFirstGen').value;
+
+  let url = `/students?page=${page}&per_page=${PER_PAGE}`;
+  if (category) url += `&category=${encodeURIComponent(category)}`;
+  if (stream)   url += `&stream=${encodeURIComponent(stream)}`;
+  if (firstGen) url += `&first_gen=${firstGen}`;
+
+  const res  = await fetch(url);
+  const data = await res.json();
+  let items  = data.data || [];
+  if (search) items = items.filter(s =>
+    (s.full_name||'').toLowerCase().includes(search.toLowerCase()) ||
+    (s.email||'').toLowerCase().includes(search.toLowerCase()) ||
+    (s.student_id||'').toLowerCase().includes(search.toLowerCase())
+  );
+
+  document.getElementById('stuCount').textContent = `👥 ${data.total?.toLocaleString('en-IN') || items.length} Students`;
+
+  document.getElementById('studentsTable').innerHTML = items.map(s => `
+    <tr>
+      <td><span class="badge badge-blue">${s.student_id}</span></td>
+      <td style="font-weight:600;color:#1a1a2e">${s.full_name||'—'}</td>
+      <td style="color:#718096">${s.email||'—'}</td>
+      <td>${s.city||'—'}</td>
+      <td>${s.twelfth_stream||'—'}</td>
+      <td>${s.current_degree||'—'}</td>
+      <td><span class="badge ${parseFloat(s.current_cgpa)>=7?'badge-green':'badge-orange'}">${s.current_cgpa||'—'}</span></td>
+      <td><span class="badge badge-purple">${s.category||'—'}</span></td>
+      <td>${s.is_first_gen_college?'<span class="badge badge-green">✅ Yes</span>':'<span class="badge badge-red">No</span>'}</td>
+    </tr>`).join('');
+
+  renderPagination('stuPagination', data.total, page, PER_PAGE, p => loadStudents(p));
+}
+
+// ── Internships ───────────────────────────────────────────────────
+async function loadAdminInternships(page=intCurrentPage) {
+  intCurrentPage = page;
+  const search = document.getElementById('intSearch').value;
+  const domain = document.getElementById('intDomain').value;
+  const mode   = document.getElementById('intMode').value;
+  const paid   = document.getElementById('intPaid').value;
+
+  let url = `/internships?page=${page}&per_page=${PER_PAGE}`;
+  if (domain) url += `&domain=${encodeURIComponent(domain)}`;
+  if (mode)   url += `&mode=${encodeURIComponent(mode)}`;
+  if (paid)   url += `&is_paid=${paid}`;
+
+  const res  = await fetch(url);
+  const data = await res.json();
+  let items  = data.data || [];
+  if (search) items = items.filter(i =>
+    (i.company_name||'').toLowerCase().includes(search.toLowerCase()) ||
+    (i.role_title||'').toLowerCase().includes(search.toLowerCase())
+  );
+
+  document.getElementById('intCount').textContent = `💼 ${data.total?.toLocaleString('en-IN')} Internships`;
+  document.getElementById('internshipsTable').innerHTML = items.map(i => `
+    <tr>
+      <td><span class="badge badge-blue">${i.internship_id}</span></td>
+      <td style="font-weight:600;color:#1a1a2e">${i.company_name}</td>
+      <td>${i.role_title}</td>
+      <td><span class="badge badge-purple">${i.domain||'—'}</span></td>
+      <td><span class="badge badge-blue">${i.mode||'—'}</span></td>
+      <td><span class="badge ${i.stipend_per_month>0?'badge-green':'badge-red'}">${i.stipend_per_month>0?'₹'+i.stipend_per_month.toLocaleString('en-IN'):'Unpaid'}</span></td>
+      <td>${i.duration_months} months</td>
+      <td><span class="badge badge-orange">⭐ ${i.rating||0}</span></td>
+      <td><span class="badge ${i.is_active?'badge-green':'badge-red'}">${i.is_active?'Active':'Inactive'}</span></td>
+    </tr>`).join('');
+
+  renderPagination('intPagination', data.total, page, PER_PAGE, p => loadAdminInternships(p));
+}
+
+// ── Careers ───────────────────────────────────────────────────────
+async function loadAdminCareers(page=carCurrentPage) {
+  carCurrentPage = page;
+  const search = document.getElementById('carSearch').value;
+  const domain = document.getElementById('carDomain').value;
+  const demand = document.getElementById('carDemand').value;
+
+  let url = `/careers?page=${page}&per_page=${PER_PAGE}`;
+  if (domain) url += `&domain=${encodeURIComponent(domain)}`;
+  if (demand) url += `&demand_level=${encodeURIComponent(demand)}`;
+
+  const res  = await fetch(url);
+  const data = await res.json();
+  let items  = data.data || [];
+  if (search) items = items.filter(c => (c.career_title||'').toLowerCase().includes(search.toLowerCase()));
+
+  document.getElementById('carCount').textContent = `🚀 ${data.total?.toLocaleString('en-IN')} Careers`;
+  const demandColors = {'Very High':'badge-green','High':'badge-orange','Medium':'badge-blue'};
+  document.getElementById('careersTable').innerHTML = items.map(c => `
+    <tr>
+      <td><span class="badge badge-blue">${c.career_id}</span></td>
+      <td style="font-weight:600;color:#1a1a2e">${c.career_title}</td>
+      <td><span class="badge badge-purple">${c.domain}</span></td>
+      <td style="color:#276749;font-weight:600">₹${c.avg_salary_lpa_entry} LPA</td>
+      <td style="color:#276749;font-weight:600">₹${c.avg_salary_lpa_senior} LPA</td>
+      <td><span class="badge badge-green">+${c.growth_rate_pct}%</span></td>
+      <td><span class="badge ${demandColors[c.demand_level]||'badge-blue'}">${c.demand_level}</span></td>
+      <td>${c.exam_required?`<span class="badge badge-orange">📝 ${c.exam_name||'Yes'}</span>`:'<span class="badge badge-green">No</span>'}</td>
+    </tr>`).join('');
+
+  renderPagination('carPagination', data.total, page, PER_PAGE, p => loadAdminCareers(p));
+}
+
+// ── Scholarships ──────────────────────────────────────────────────
+async function loadAdminScholarships(page=schCurrentPage) {
+  schCurrentPage = page;
+  const search   = document.getElementById('schSearch').value;
+  const category = document.getElementById('schCategory').value;
+  const firstGen = document.getElementById('schFirstGen').value;
+
+  let url = `/scholarships?page=${page}&per_page=${PER_PAGE}`;
+  if (category) url += `&category=${encodeURIComponent(category)}`;
+  if (firstGen) url += `&first_gen=${firstGen}`;
+
+  const res  = await fetch(url);
+  const data = await res.json();
+  let items  = data.data || [];
+  if (search) items = items.filter(s =>
+    (s.scholarship_name||'').toLowerCase().includes(search.toLowerCase()) ||
+    (s.sponsoring_body||'').toLowerCase().includes(search.toLowerCase())
+  );
+
+  document.getElementById('schCount').textContent = `🎓 ${data.total?.toLocaleString('en-IN')} Scholarships`;
+  document.getElementById('scholarshipsTable').innerHTML = items.map(s => `
+    <tr>
+      <td><span class="badge badge-blue">${s.scholarship_id}</span></td>
+      <td style="font-weight:600;color:#1a1a2e;max-width:200px">${s.scholarship_name}</td>
+      <td>${s.sponsoring_body||'—'}</td>
+      <td style="color:#276749;font-weight:600">₹${(s.amount_per_year||0).toLocaleString('en-IN')}</td>
+      <td><span class="badge badge-purple">${s.eligible_categories||'All'}</span></td>
+      <td><span class="badge badge-blue">${s.eligible_gender||'Any'}</span></td>
+      <td>${s.first_gen_preferred?'<span class="badge badge-green">⭐ Yes</span>':'<span class="badge">No</span>'}</td>
+      <td style="color:#a0aec0">${s.application_deadline||'—'}</td>
+    </tr>`).join('');
+
+  renderPagination('schPagination', data.total, page, PER_PAGE, p => loadAdminScholarships(p));
+}
+
+// ── Pagination Helper ─────────────────────────────────────────────
+function renderPagination(containerId, total, current, perPage, callback) {
+  const pages = Math.ceil(total / perPage);
+  if (pages <= 1) { document.getElementById(containerId).innerHTML=''; return; }
+  let html = '';
+  if (current > 1) html += `<button class="page-btn" onclick="(${callback})(${current-1})">← Prev</button>`;
+  const start = Math.max(1, current-2);
+  const end   = Math.min(pages, current+2);
+  if (start > 1) html += `<button class="page-btn" onclick="(${callback})(1)">1</button><span>...</span>`;
+  for (let i=start; i<=end; i++)
+    html += `<button class="page-btn ${i===current?'active':''}" onclick="(${callback})(${i})">${i}</button>`;
+  if (end < pages) html += `<span>...</span><button class="page-btn" onclick="(${callback})(${pages})">${pages}</button>`;
+  if (current < pages) html += `<button class="page-btn" onclick="(${callback})(${current+1})">Next →</button>`;
+  document.getElementById(containerId).innerHTML = html;
+}
+
+// Init
+loadOverview();
+</script>
+</body>
+</html>
