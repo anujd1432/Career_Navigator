@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mentorship — Career Navigator</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-brand"><span>🎯</span> Career Navigator</div>
+  <div class="nav-links">
+    <a href="/dashboard">🏠 Home</a>
+    <a href="/internships-page">💼 Internships</a>
+    <a href="/careers-page">🚀 Careers</a>
+    <a href="/scholarships-page">🎓 Scholarships</a>
+    <a href="/assessment">🎯 Assessment</a>
+    <a href="/chatbot">🤖 AI Chat</a>
+    <a href="/skill-gap">🔍 Skills</a>
+  </div>
+  <div class="nav-user">
+    <div class="avatar" id="avatarText">S</div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<div class="dashboard">
+  <div class="page-title">🤝 Mentorship Program</div>
+  <div class="page-sub">Expert mentors se guidance lo — apna career fast track karo!</div>
+
+  <!-- Tabs -->
+  <div class="mentor-tabs">
+    <button class="mtab active" onclick="switchTab('find',this)">🔍 Mentor Dhundho</button>
+    <button class="mtab" onclick="switchTab('sessions',this)">📅 My Sessions</button>
+    <button class="mtab" onclick="switchTab('register',this)">✋ Mentor Bano</button>
+  </div>
+
+  <!-- Find Mentor Tab -->
+  <div id="tab-find">
+
+    <!-- Stats -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px">
+      <div class="m-stat" style="background:linear-gradient(135deg,#667eea,#764ba2)">
+        <div style="font-size:28px;font-weight:700">50+</div>
+        <div style="font-size:12px;opacity:.8">Expert Mentors</div>
+      </div>
+      <div class="m-stat" style="background:linear-gradient(135deg,#48bb78,#38a169)">
+        <div style="font-size:28px;font-weight:700">500+</div>
+        <div style="font-size:12px;opacity:.8">Sessions Done</div>
+      </div>
+      <div class="m-stat" style="background:linear-gradient(135deg,#ed8936,#dd6b20)">
+        <div style="font-size:28px;font-weight:700">4.8⭐</div>
+        <div style="font-size:12px;opacity:.8">Avg Rating</div>
+      </div>
+      <div class="m-stat" style="background:linear-gradient(135deg,#9f7aea,#805ad5)">
+        <div style="font-size:28px;font-weight:700">Free</div>
+        <div style="font-size:12px;opacity:.8">First Session</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar" style="margin-bottom:20px">
+      <input type="text" id="mentorSearch" placeholder="🔍 Name ya expertise search..." class="search-input" oninput="renderMentors()"/>
+      <select id="domainFilter" onchange="renderMentors()">
+        <option value="">All Domains</option>
+        <option>IT/Software</option>
+        <option>Data Science</option>
+        <option>Government/UPSC</option>
+        <option>Finance/CA</option>
+        <option>Healthcare</option>
+        <option>Entrepreneurship</option>
+        <option>Marketing</option>
+        <option>Engineering</option>
+      </select>
+      <select id="expFilter" onchange="renderMentors()">
+        <option value="">All Experience</option>
+        <option value="2">2+ years</option>
+        <option value="5">5+ years</option>
+        <option value="10">10+ years</option>
+      </select>
+      <select id="langFilter" onchange="renderMentors()">
+        <option value="">All Languages</option>
+        <option>Hindi</option>
+        <option>English</option>
+        <option>Hindi + English</option>
+      </select>
+    </div>
+
+    <!-- Mentor Cards -->
+    <div id="mentorGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px"></div>
+  </div>
+
+  <!-- My Sessions Tab -->
+  <div id="tab-sessions" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px">
+
+      <!-- Upcoming Sessions -->
+      <div class="table-card">
+        <div class="table-title" style="margin-bottom:16px">📅 Upcoming Sessions</div>
+        <div id="upcomingSessions">
+          <div style="text-align:center;padding:40px;color:#a0aec0">
+            <div style="font-size:40px;margin-bottom:10px">📅</div>
+            <div style="font-size:14px;font-weight:600">Koi upcoming session nahi</div>
+            <div style="font-size:12px;margin-top:6px">Mentor dhundho aur session book karo!</div>
+            <button class="btn-primary" onclick="switchTabBtn('find')" style="margin-top:16px;padding:10px 20px">Mentor Dhundho →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Past Sessions -->
+      <div class="table-card">
+        <div class="table-title" style="margin-bottom:16px">✅ Past Sessions</div>
+        <div id="pastSessions">
+          <div style="text-align:center;padding:40px;color:#a0aec0">
+            <div style="font-size:40px;margin-bottom:10px">📝</div>
+            <div style="font-size:14px;font-weight:600">Abhi tak koi session nahi</div>
+            <div style="font-size:12px;margin-top:6px">Pehla session book karo!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- My Mentor -->
+    <div class="card" id="myMentorCard" style="display:none">
+      <div style="font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:16px">👨‍🏫 Mera Mentor</div>
+      <div id="myMentorInfo"></div>
+    </div>
+  </div>
+
+  <!-- Register as Mentor Tab -->
+  <div id="tab-register" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+      <div class="card">
+        <div style="font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:6px">✋ Mentor Bano</div>
+        <div style="font-size:13px;color:#718096;margin-bottom:20px">First-gen students ki life change karo!</div>
+
+        <div class="form-group">
+          <label>Full Name</label>
+          <input id="m_name" placeholder="Aapka naam"/>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Current Role</label>
+            <input id="m_role" placeholder="Software Engineer at Google"/>
+          </div>
+          <div class="form-group">
+            <label>Company</label>
+            <input id="m_company" placeholder="Google, TCS, Govt..."/>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Domain</label>
+            <select id="m_domain">
+              <option>IT/Software</option>
+              <option>Data Science</option>
+              <option>Government/UPSC</option>
+              <option>Finance/CA</option>
+              <option>Healthcare</option>
+              <option>Entrepreneurship</option>
+              <option>Marketing</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Experience (years)</label>
+            <input id="m_exp" type="number" placeholder="5" min="1" max="40"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Expertise (comma separated)</label>
+          <input id="m_expertise" placeholder="Python, ML, System Design, DSA"/>
+        </div>
+        <div class="form-group">
+          <label>Languages</label>
+          <select id="m_lang">
+            <option>Hindi + English</option>
+            <option>Hindi</option>
+            <option>English</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Available Days</label>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">
+            <label class="day-chip"><input type="checkbox" value="Mon"/> Mon</label>
+            <label class="day-chip"><input type="checkbox" value="Tue"/> Tue</label>
+            <label class="day-chip"><input type="checkbox" value="Wed"/> Wed</label>
+            <label class="day-chip"><input type="checkbox" value="Thu"/> Thu</label>
+            <label class="day-chip"><input type="checkbox" value="Fri"/> Fri</label>
+            <label class="day-chip"><input type="checkbox" value="Sat"/> Sat</label>
+            <label class="day-chip"><input type="checkbox" value="Sun"/> Sun</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>About You (short bio)</label>
+          <textarea id="m_bio" rows="3" placeholder="Main first-gen student tha/thi aur ab..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>LinkedIn Profile</label>
+          <input id="m_linkedin" placeholder="linkedin.com/in/yourname"/>
+        </div>
+        <button class="btn-primary" onclick="registerMentor()">✋ Mentor ke roop mein Register Karo</button>
+      </div>
+
+      <!-- Why Become Mentor -->
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:14px">🌟 Mentor Kyun Bano?</div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div class="why-item"><span>❤️</span><div><div style="font-weight:600;font-size:13px">Impact Create Karo</div><div style="font-size:12px;color:#718096">First-gen students ki life change karne ka mauka</div></div></div>
+            <div class="why-item"><span>🌐</span><div><div style="font-weight:600;font-size:13px">Network Expand Karo</div><div style="font-size:12px;color:#718096">Future professionals se connect karo</div></div></div>
+            <div class="why-item"><span>📜</span><div><div style="font-weight:600;font-size:13px">Certificate Milega</div><div style="font-size:12px;color:#718096">Mentorship completion certificate</div></div></div>
+            <div class="why-item"><span>⏰</span><div><div style="font-weight:600;font-size:13px">Flexible Timing</div><div style="font-size:12px;color:#718096">Apni convenience ke hisaab se sessions</div></div></div>
+            <div class="why-item"><span>🏆</span><div><div style="font-weight:600;font-size:13px">Recognition</div><div style="font-size:12px;color:#718096">Top Mentor badge aur leaderboard</div></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:14px">📊 Mentor Stats</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="info-row2"><span>👨‍🏫 Active Mentors</span><span style="font-weight:700;color:#667eea">50+</span></div>
+            <div class="info-row2"><span>🎓 Students Helped</span><span style="font-weight:700;color:#667eea">1,200+</span></div>
+            <div class="info-row2"><span>⭐ Avg Rating</span><span style="font-weight:700;color:#667eea">4.8/5</span></div>
+            <div class="info-row2"><span>📅 Sessions/Month</span><span style="font-weight:700;color:#667eea">500+</span></div>
+            <div class="info-row2"><span>🏆 Top Domain</span><span style="font-weight:700;color:#667eea">IT/Software</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Book Session Modal -->
+<div id="bookModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:white;border-radius:16px;padding:28px;max-width:480px;width:90%">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="font-size:18px;font-weight:700;color:#1a1a2e">📅 Session Book Karo</h3>
+      <button onclick="closeModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#a0aec0">✕</button>
+    </div>
+    <div id="bookModalContent"></div>
+  </div>
+</div>
+
+<style>
+.mentor-tabs{display:flex;gap:8px;margin-bottom:24px;background:white;padding:8px;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.mtab{padding:10px 20px;border-radius:10px;border:none;font-size:14px;font-weight:600;cursor:pointer;color:#718096;background:none;transition:.2s}
+.mtab.active{background:linear-gradient(135deg,#667eea,#764ba2);color:white}
+.m-stat{border-radius:14px;padding:18px 20px;color:white;text-align:center}
+.filter-bar{display:flex;gap:12px;flex-wrap:wrap;background:white;padding:16px;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.search-input{flex:1;min-width:200px;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;outline:none}
+.search-input:focus{border-color:#667eea}
+.filter-bar select{padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:13px;outline:none;cursor:pointer}
+.mentor-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.06);border:1px solid #f0f4ff;transition:.2s;display:flex;flex-direction:column}
+.mentor-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,.12);border-color:#667eea}
+.mentor-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);color:white;font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mentor-name{font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:2px}
+.mentor-role{font-size:12px;color:#718096}
+.mentor-tag{font-size:10px;padding:3px 8px;border-radius:10px;font-weight:600;margin:2px}
+.exp-tag{background:#f0f4ff;color:#667eea}
+.domain-tag{background:#f0fff4;color:#276749}
+.lang-tag{background:#fffaf0;color:#c05621}
+.mentor-stat{text-align:center;padding:8px;background:#f7fafc;border-radius:8px;flex:1}
+.mentor-stat-val{font-size:15px;font-weight:700;color:#1a1a2e}
+.mentor-stat-lbl{font-size:10px;color:#a0aec0;margin-top:2px}
+.book-btn{display:block;text-align:center;padding:10px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;width:100%;margin-top:auto}
+.book-btn:hover{opacity:.9}
+.why-item{display:flex;gap:12px;align-items:flex-start;font-size:22px}
+.info-row2{display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:1px solid #f7fafc;color:#4a5568}
+.day-chip{display:flex;align-items:center;gap:4px;padding:6px 12px;border:2px solid #e2e8f0;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:#4a5568;transition:.2s}
+.day-chip:has(input:checked){border-color:#667eea;background:#f0f4ff;color:#667eea}
+.day-chip input{display:none}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:#4a5568;margin-bottom:5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;font-family:inherit;box-sizing:border-box;transition:.2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#667eea}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.slot-btn{padding:8px 14px;border:2px solid #e2e8f0;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:#4a5568;background:white;transition:.2s}
+.slot-btn:hover,.slot-btn.selected{background:#667eea;color:white;border-color:#667eea}
+</style>
+
+<script src="/static/js/main.js"></script>
+<script>
+const token = getToken();
+if (!token) window.location.href = '/login';
+const s = getStudent();
+if (s) document.getElementById('avatarText').textContent = (s.full_name||'S').charAt(0).toUpperCase();
+
+// Mentor data
+const mentors = [
+  {id:1, name:'Rahul Sharma', role:'Senior Software Engineer', company:'Google India', domain:'IT/Software', exp:7, expertise:['Python','ML','System Design','DSA','LeetCode'], lang:'Hindi + English', rating:4.9, sessions:85, students:42, available:['Mon','Wed','Fri'], bio:'IIT Bombay graduate, pehla first-gen student tha apne ghar mein. FAANG journey share karna chahta hoon.', linkedin:'linkedin.com/in/rahulsharma', avatar:'RS', free_first:true},
+  {id:2, name:'Priya Nair', role:'Data Scientist', company:'Flipkart', domain:'Data Science', exp:5, expertise:['Python','ML','SQL','Tableau','Statistics'], lang:'Hindi + English', rating:4.8, sessions:62, students:30, available:['Tue','Thu','Sat'], bio:'Kerala se hoon, scholarship se padhi. Data Science mein aane ki poori journey guide karungi.', linkedin:'linkedin.com/in/priyanair', avatar:'PN', free_first:true},
+  {id:3, name:'Amit Kumar', role:'IAS Officer (2019 Batch)', company:'Govt of India', domain:'Government/UPSC', exp:5, expertise:['UPSC Strategy','Essay Writing','Current Affairs','Interview Prep','GS Paper'], lang:'Hindi', rating:5.0, sessions:120, students:60, available:['Sat','Sun'], bio:'UP ke ek chhote gaon se UPSC crack kiya. First generation graduate hoon. Aapki bhi help karunga.', linkedin:'linkedin.com/in/amitkumaruiasi', avatar:'AK', free_first:true},
+  {id:4, name:'Sneha Gupta', role:'Chartered Accountant', company:'Deloitte India', domain:'Finance/CA', exp:6, expertise:['CA Foundation','CA Intermediate','Tax','Audit','Finance'], lang:'Hindi + English', rating:4.7, sessions:45, students:28, available:['Mon','Wed','Sat'], bio:'CA ki journey bahut tough thi. Teen attempts mein crack kiya. Apna experience share karna chahti hoon.', linkedin:'linkedin.com/in/snehagupta', avatar:'SG', free_first:true},
+  {id:5, name:'Dr. Vikram Singh', role:'MBBS Doctor', company:'AIIMS Delhi', domain:'Healthcare', exp:8, expertise:['NEET Prep','Medical Career','MBBS Journey','PG Entrance','Clinical Skills'], lang:'Hindi + English', rating:4.9, sessions:93, students:47, available:['Sun','Sat'], bio:'Rajasthan ke rural area se NEET crack kiya. Ab AIIMS mein hoon. Aapko guide karunga!', linkedin:'linkedin.com/in/drvikramsingh', avatar:'VS', free_first:true},
+  {id:6, name:'Neha Startup', role:'Co-Founder & CEO', company:'EduTech Startup', domain:'Entrepreneurship', exp:4, expertise:['Startup','Funding','Product','Marketing','Pitching'], lang:'Hindi + English', rating:4.6, sessions:38, students:20, available:['Tue','Thu','Fri'], bio:'IIM graduate, apna startup chala rahi hoon. Entrepreneurship ke baare mein sab kuch bataungi!', linkedin:'linkedin.com/in/nehaentrepreneur', avatar:'NS', free_first:true},
+  {id:7, name:'Rajesh Yadav', role:'Digital Marketing Manager', company:'Amazon India', domain:'Marketing', exp:9, expertise:['SEO','SEM','Social Media','Content Marketing','Analytics'], lang:'Hindi', rating:4.7, sessions:55, students:32, available:['Mon','Wed','Fri'], bio:'Marketing mein 9 saal ka experience. First-gen college graduate. Digital marketing ka full guide karunga.', linkedin:'linkedin.com/in/rajeshyadav', avatar:'RY', free_first:true},
+  {id:8, name:'Ananya Verma', role:'ML Engineer', company:'Microsoft India', domain:'Data Science', exp:3, expertise:['TensorFlow','PyTorch','Computer Vision','NLP','Python'], lang:'Hindi + English', rating:4.8, sessions:28, students:15, available:['Tue','Thu','Sat'], bio:'NIT Allahabad se padhi, scholarship se. Microsoft mein ML Engineer hoon. AI career guide karungi!', linkedin:'linkedin.com/in/ananyaverma', avatar:'AV', free_first:true},
+  {id:9, name:'Suresh Patel', role:'Civil Engineer', company:'L&T Construction', domain:'Engineering', exp:12, expertise:['Civil Engineering','AutoCAD','Project Management','GATE','PSU Jobs'], lang:'Hindi + English', rating:4.5, sessions:40, students:22, available:['Sat','Sun'], bio:'Gujarat se hoon. Engineering aur government jobs dono mein guidance de sakta hoon.', linkedin:'linkedin.com/in/sureshpatel', avatar:'SP', free_first:true},
+];
+
+let selectedMentor = null;
+
+function switchTab(tab, btn) {
+  ['find','sessions','register'].forEach(t => document.getElementById(`tab-${t}`).style.display = 'none');
+  document.querySelectorAll('.mtab').forEach(b => b.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).style.display = 'block';
+  if (btn) btn.classList.add('active');
+  if (tab === 'sessions') loadMySessions();
+}
+
+function switchTabBtn(tab) {
+  document.querySelectorAll('.mtab').forEach((b,i) => {
+    const tabs = ['find','sessions','register'];
+    if (tabs[i] === tab) { b.classList.add('active'); b.click(); }
+    else b.classList.remove('active');
+  });
+}
+
+function renderMentors() {
+  const search = document.getElementById('mentorSearch').value.toLowerCase();
+  const domain = document.getElementById('domainFilter').value;
+  const exp    = parseInt(document.getElementById('expFilter').value) || 0;
+  const lang   = document.getElementById('langFilter').value;
+
+  let filtered = mentors.filter(m => {
+    const matchSearch = !search || m.name.toLowerCase().includes(search) || m.expertise.some(e => e.toLowerCase().includes(search)) || m.domain.toLowerCase().includes(search);
+    const matchDomain = !domain || m.domain === domain;
+    const matchExp    = !exp || m.exp >= exp;
+    const matchLang   = !lang || m.lang === lang || m.lang.includes(lang);
+    return matchSearch && matchDomain && matchExp && matchLang;
+  });
+
+  if (!filtered.length) {
+    document.getElementById('mentorGrid').innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:60px;color:#a0aec0">
+        <div style="font-size:48px;margin-bottom:12px">😕</div>
+        <div style="font-size:16px;font-weight:600">Koi mentor nahi mila</div>
+        <div style="font-size:13px;margin-top:8px">Filters change karo</div>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('mentorGrid').innerHTML = filtered.map(m => `
+    <div class="mentor-card">
+      <div style="display:flex;gap:14px;margin-bottom:14px;align-items:flex-start">
+        <div class="mentor-avatar">${m.avatar}</div>
+        <div style="flex:1">
+          <div class="mentor-name">${m.name}</div>
+          <div class="mentor-role">${m.role}</div>
+          <div style="font-size:12px;color:#667eea;font-weight:600">${m.company}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:14px;font-weight:700;color:#ed8936">⭐ ${m.rating}</div>
+          ${m.free_first ? '<div style="font-size:10px;background:#f0fff4;color:#276749;padding:2px 6px;border-radius:6px;margin-top:4px;font-weight:600">FREE 1st Session</div>' : ''}
+        </div>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px">
+        <span class="mentor-tag domain-tag">🏷 ${m.domain}</span>
+        <span class="mentor-tag exp-tag">⏱ ${m.exp} yrs</span>
+        <span class="mentor-tag lang-tag">🗣 ${m.lang}</span>
+      </div>
+
+      <div style="font-size:12px;color:#718096;margin-bottom:12px;line-height:1.5">"${m.bio.substring(0,80)}..."</div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px">
+        ${m.expertise.slice(0,4).map(e=>`<span style="font-size:10px;background:#f0f4ff;color:#667eea;padding:2px 8px;border-radius:10px">${e}</span>`).join('')}
+      </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <div class="mentor-stat"><div class="mentor-stat-val">${m.sessions}</div><div class="mentor-stat-lbl">Sessions</div></div>
+        <div class="mentor-stat"><div class="mentor-stat-val">${m.students}</div><div class="mentor-stat-lbl">Students</div></div>
+        <div class="mentor-stat"><div class="mentor-stat-val">${m.available.length}</div><div class="mentor-stat-lbl">Days/Week</div></div>
+      </div>
+
+      <div style="font-size:11px;color:#a0aec0;margin-bottom:12px">📅 Available: ${m.available.join(', ')}</div>
+
+      <button class="book-btn" onclick="openBookModal(${m.id})">📅 Session Book Karo</button>
+    </div>`).join('');
+}
+
+function openBookModal(mentorId) {
+  selectedMentor = mentors.find(m => m.id === mentorId);
+  const m = selectedMentor;
+  document.getElementById('bookModalContent').innerHTML = `
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;padding:12px;background:#f7fafc;border-radius:10px">
+      <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);color:white;font-weight:700;display:flex;align-items:center;justify-content:center">${m.avatar}</div>
+      <div>
+        <div style="font-weight:700;color:#1a1a2e">${m.name}</div>
+        <div style="font-size:12px;color:#718096">${m.role} at ${m.company}</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Session Topic</label>
+      <select id="sessionTopic">
+        <option>Career Guidance</option>
+        <option>Resume Review</option>
+        <option>Interview Preparation</option>
+        <option>Course Recommendations</option>
+        <option>Skill Development Plan</option>
+        <option>Job/Internship Search</option>
+        <option>Exam Preparation (UPSC/GATE/CA)</option>
+        <option>General Mentoring</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Preferred Day</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${m.available.map(d=>`<button class="slot-btn" onclick="selectDay(this,'${d}')">${d}</button>`).join('')}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Preferred Time</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${['9 AM','11 AM','2 PM','4 PM','6 PM','8 PM'].map(t=>`<button class="slot-btn" onclick="selectTime(this,'${t}')">${t}</button>`).join('')}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Your Message to Mentor</label>
+      <textarea id="sessionMsg" rows="3" placeholder="Apne baare mein batao aur kya guidance chahiye..."></textarea>
+    </div>
+
+    ${m.free_first ? '<div style="background:#f0fff4;color:#276749;padding:10px;border-radius:8px;font-size:13px;margin-bottom:14px;font-weight:600">🎉 Pehla session FREE hai!</div>' : ''}
+
+    <button class="btn-primary" onclick="confirmBooking()">✅ Session Confirm Karo</button>`;
+
+  document.getElementById('bookModal').style.display = 'flex';
+}
+
+let selectedDay = '', selectedTime = '';
+function selectDay(btn, day) {
+  document.querySelectorAll('.slot-btn').forEach(b => { if (['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].includes(b.textContent)) b.classList.remove('selected'); });
+  btn.classList.add('selected');
+  selectedDay = day;
+}
+function selectTime(btn, time) {
+  document.querySelectorAll('.slot-btn').forEach(b => { if (b.textContent.includes('AM')||b.textContent.includes('PM')) b.classList.remove('selected'); });
+  btn.classList.add('selected');
+  selectedTime = time;
+}
+
+function confirmBooking() {
+  const topic = document.getElementById('sessionTopic').value;
+  const msg   = document.getElementById('sessionMsg').value;
+  if (!selectedDay)  { alert('Din select karo!'); return; }
+  if (!selectedTime) { alert('Time select karo!'); return; }
+
+  // Save to localStorage
+  const sessions = JSON.parse(localStorage.getItem('mentorSessions')||'[]');
+  sessions.push({
+    mentor: selectedMentor,
+    topic, day: selectedDay, time: selectedTime, message: msg,
+    status: 'Pending',
+    bookedAt: new Date().toLocaleDateString('en-IN')
+  });
+  localStorage.setItem('mentorSessions', JSON.stringify(sessions));
+  localStorage.setItem('myMentor', JSON.stringify(selectedMentor));
+
+  closeModal();
+  alert(`✅ Session booked!\n\nMentor: ${selectedMentor.name}\nDay: ${selectedDay} at ${selectedTime}\nTopic: ${topic}\n\nMentor aapko LinkedIn pe connect karenge!`);
+}
+
+function closeModal() {
+  document.getElementById('bookModal').style.display = 'none';
+  selectedDay = ''; selectedTime = '';
+}
+
+function loadMySessions() {
+  const sessions = JSON.parse(localStorage.getItem('mentorSessions')||'[]');
+  const myMentor = JSON.parse(localStorage.getItem('myMentor')||'null');
+
+  if (sessions.length > 0) {
+    const upcoming = sessions.filter(s => s.status === 'Pending');
+    const past     = sessions.filter(s => s.status === 'Completed');
+
+    document.getElementById('upcomingSessions').innerHTML = upcoming.length ? upcoming.map(s => `
+      <div style="padding:14px;background:#f7fafc;border-radius:10px;margin-bottom:10px;border-left:3px solid #667eea">
+        <div style="font-weight:700;color:#1a1a2e;margin-bottom:4px">${s.mentor.name}</div>
+        <div style="font-size:13px;color:#718096">${s.topic} • ${s.day} at ${s.time}</div>
+        <div style="font-size:11px;color:#a0aec0;margin-top:4px">Booked on ${s.bookedAt}</div>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <a href="https://${s.mentor.linkedin}" target="_blank" style="font-size:12px;color:#667eea;font-weight:600;text-decoration:none">LinkedIn Connect →</a>
+        </div>
+      </div>`) .join('') : '<p style="text-align:center;color:#a0aec0;padding:20px">Koi upcoming session nahi</p>';
+  }
+
+  if (myMentor) {
+    document.getElementById('myMentorCard').style.display = 'block';
+    document.getElementById('myMentorInfo').innerHTML = `
+      <div style="display:flex;gap:14px;align-items:center">
+        <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);color:white;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">${myMentor.avatar}</div>
+        <div>
+          <div style="font-size:16px;font-weight:700;color:#1a1a2e">${myMentor.name}</div>
+          <div style="font-size:13px;color:#718096">${myMentor.role} at ${myMentor.company}</div>
+          <div style="font-size:12px;color:#667eea;margin-top:4px">⭐ ${myMentor.rating} rating • ${myMentor.exp} years experience</div>
+        </div>
+        <a href="https://${myMentor.linkedin}" target="_blank" class="btn-primary" style="text-decoration:none;padding:8px 16px;font-size:13px;margin-left:auto">LinkedIn →</a>
+      </div>`;
+  }
+}
+
+function registerMentor() {
+  const name = document.getElementById('m_name').value;
+  const role = document.getElementById('m_role').value;
+  if (!name || !role) { alert('Naam aur role zaroor bharo!'); return; }
+  alert(`✅ Mentor registration submit ho gaya!\n\nNaam: ${name}\nRole: ${role}\n\nHamari team 2-3 din mein verify karegi aur aapko email karegi. Thank you! 🙏`);
+}
+
+// Init
+renderMentors();
+</script>
+</body>
+</html>
